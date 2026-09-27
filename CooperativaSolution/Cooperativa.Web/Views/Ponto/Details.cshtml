@@ -1,0 +1,56 @@
+@model Cooperativa.Models.RegistroPonto
+
+@{
+    ViewData["Title"] = "Detalhes do ponto";
+    var ehCooperado = User.IsInRole("Cooperado") && !User.IsInRole("Administrador") && !User.IsInRole("Admin") && !User.IsInRole("Coordenador") && !User.IsInRole("Gestor");
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-1">Detalhes do ponto</h2>
+        <p class="text-muted mb-0">Resumo do registro de frequência.</p>
+    </div>
+    <button type="button" onclick="history.back()" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Voltar
+    </button>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-start mb-4">
+            <div>
+                <h4 class="mb-1">@Model.Cooperado?.Nome</h4>
+                <p class="text-muted mb-0">@Model.Data.ToString("dd/MM/yyyy")</p>
+            </div>
+            <span class="badge bg-success fs-6">Registro válido</span>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-6"><strong>Entrada:</strong> @(Model.Entrada?.ToString("HH:mm") ?? "-")</div>
+            <div class="col-md-6"><strong>Saída:</strong> @(Model.Saida?.ToString("HH:mm") ?? "-")</div>
+            <div class="col-md-6"><strong>Início do intervalo:</strong> @(Model.InicioIntervalo?.ToString("HH:mm") ?? "-")</div>
+            <div class="col-md-6"><strong>Fim do intervalo:</strong> @(Model.FimIntervalo?.ToString("HH:mm") ?? "-")</div>
+            <div class="col-md-6">
+                <strong>Ocorrência:</strong>
+                @if (Cooperativa.Models.OcorrenciasPonto.ObterPorCodigo(Model.Ocorrencia) is { } ocorrencia)
+                {
+                    <span class="badge bg-info text-dark">@ocorrencia.Codigo — @ocorrencia.Descricao</span>
+                    <small class="text-muted d-block mt-1">Impacto na folha: @ocorrencia.TipoImpactoFolha.</small>
+                }
+                else
+                {
+                    <span class="text-muted">Nenhuma (dia trabalhado comum)</span>
+                }
+            </div>
+            <div class="col-12"><strong>Observação:</strong> @Model.Observacao</div>
+        </div>
+
+        @if (!ehCooperado)
+        {
+            <div class="mt-4 d-flex gap-2">
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Editar</a>
+                <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">Excluir</a>
+            </div>
+        }
+    </div>
+</div>

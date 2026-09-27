@@ -1,0 +1,10 @@
+@model Cooperativa.Models.RegraHoraExtra
+@{ ViewData["Title"] = "Excluir regra de hora extra"; }
+<div class="card p-4">
+    <h2 class="mb-3">Excluir regra de hora extra</h2>
+    <p>Confirma a exclusão da regra do contrato <strong>@(Model.Contrato?.EmpresaNome ?? "Todas as empresas")</strong>?</p>
+    <form asp-action="Delete" method="post">
+        <input type="hidden" asp-for="Id" />
+        <div class="mt-4 d-flex gap-2"><button type="submit" class="btn btn-danger">Excluir</button><a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a></div>
+    </form>
+</div>

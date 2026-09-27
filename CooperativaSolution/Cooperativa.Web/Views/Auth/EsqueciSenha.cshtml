@@ -1,0 +1,45 @@
+@model Cooperativa.Web.Models.EsqueciSenhaViewModel
+@{
+    ViewData["Title"] = "Recuperação de Senha";
+}
+
+<div class="row justify-content-center pt-4">
+    <div class="col-md-5 col-lg-4">
+        <div class="text-center mb-4">
+            <div class="d-inline-block rounded-circle bg-primary-subtle text-primary p-3 mb-2 shadow-sm">
+                <i class="bi bi-envelope-check fs-2"></i>
+            </div>
+            <h3 class="fw-bold text-dark">Recuperar Senha</h3>
+            <p class="text-muted small">Informe seu login ou e-mail cadastrado para redefinir sua senha.</p>
+        </div>
+
+        <div class="card border-0 shadow-sm p-4">
+            <form asp-action="EsqueciSenha" method="post">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="LoginOuEmail" class="form-label fw-semibold">Login ou E-mail</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="bi bi-person-badge"></i></span>
+                        <input asp-for="LoginOuEmail" class="form-control" placeholder="Digite seu usuário ou e-mail" autofocus />
+                    </div>
+                    <span asp-validation-for="LoginOuEmail" class="text-danger small"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold mt-2 shadow-sm">
+                    <i class="bi bi-send me-1"></i>Enviar Instruções
+                </button>
+
+                <div class="text-center mt-3">
+                    <a asp-action="Login" class="small text-muted text-decoration-none">
+                        <i class="bi bi-arrow-left me-1"></i>Voltar ao login
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

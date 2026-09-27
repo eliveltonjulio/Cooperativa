@@ -1,0 +1,70 @@
+﻿@model Cooperativa.Models.Alocacao
+@{
+    ViewData["Title"] = "Editar alocação";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-1">Editar alocação</h2>
+        <p class="text-muted mb-0">Atualize os dados da alocação.</p>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary">Voltar</a>
+</div>
+
+<form asp-action="Edit" method="post" class="card border-0 shadow-sm p-4">
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label class="form-label">Cooperado</label>
+            <select asp-for="CooperadoId" class="form-select">
+                <option value="">Selecione...</option>
+                @if (ViewBag.Cooperados is IEnumerable<Cooperativa.Models.Cooperado> cooperadosList)
+                {
+                    @foreach (var cooperado in cooperadosList)
+                    {
+                        <option value="@cooperado.Id">@cooperado.Nome</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Contrato</label>
+            <select asp-for="ContratoId" class="form-select">
+                <option value="">Selecione...</option>
+                @if (ViewBag.Contratos is IEnumerable<Cooperativa.Models.Contrato> contratosList)
+                {
+                    @foreach (var contrato in contratosList)
+                    {
+                        <option value="@contrato.Id">@contrato.EmpresaNome</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Função</label>
+            <select asp-for="FuncaoId" class="form-select">
+                <option value="">Selecione...</option>
+                @if (ViewBag.Funcoes is IEnumerable<Cooperativa.Models.Funcao> funcoesList)
+                {
+                    @foreach (var funcao in funcoesList)
+                    {
+                        <option value="@funcao.Id">@funcao.Nome</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="DataInicio" class="form-label"></label>
+            <input asp-for="DataInicio" class="form-control" type="date" />
+        </div>
+        <div class="col-md-6">
+            <label asp-for="DataFim" class="form-label"></label>
+            <input asp-for="DataFim" class="form-control" type="date" />
+            <div class="form-text">Opcional: deixe em branco para alocação em aberto.</div>
+        </div>
+    </div>
+    <div class="mt-4 d-flex gap-2">
+        <button type="submit" class="btn btn-success">Salvar</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+    </div>
+</form>

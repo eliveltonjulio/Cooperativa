@@ -1,0 +1,11 @@
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Domain\bin\ValidationTiposAdicionais\Cooperativa.Domain.deps.json
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Domain\bin\ValidationTiposAdicionais\Cooperativa.Domain.dll
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Domain\bin\ValidationTiposAdicionais\Cooperativa.Domain.pdb
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Domain\obj\ValidationTiposAdicionais\Cooperativa.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Domain\obj\ValidationTiposAdicionais\Cooperativa.Domain.AssemblyInfoInputs.cache
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Domain\obj\ValidationTiposAdicionais\Cooperativa.Domain.AssemblyInfo.cs
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Domain\obj\ValidationTiposAdicionais\Cooperativa.Domain.csproj.CoreCompileInputs.cache
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Domain\obj\ValidationTiposAdicionais\Cooperativa.Domain.dll
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Domain\obj\ValidationTiposAdicionais\refint\Cooperativa.Domain.dll
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Domain\obj\ValidationTiposAdicionais\Cooperativa.Domain.pdb
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Domain\obj\ValidationTiposAdicionais\ref\Cooperativa.Domain.dll

@@ -1,0 +1,16 @@
+@model Cooperativa.Models.Contrato
+@{
+    ViewData["Title"] = "Excluir contrato";
+}
+
+<div class="card p-4">
+    <h2 class="mb-3">Excluir contrato</h2>
+    <p>Confirma a exclusão do contrato da empresa <strong>@Model.EmpresaNome</strong>?</p>
+    <form asp-action="Delete" method="post">
+        <input type="hidden" asp-for="Id" />
+        <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-danger">Excluir</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>

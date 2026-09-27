@@ -1,0 +1,111 @@
+@model Cooperativa.Models.Usuario
+@{
+    ViewData["Title"] = "Detalhes do Usuário";
+}
+
+<div class="card border-0 shadow-sm p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2 class="mb-1">Detalhes do Usuário</h2>
+            <p class="text-muted mb-0">Visão completa dos dados de identificação, acesso, auditoria e funções.</p>
+        </div>
+        <div>
+            @if (Model.Ativo)
+            {
+                <span class="badge bg-success fs-6"><i class="bi bi-check-circle me-1"></i>Conta Ativa</span>
+            }
+            else
+            {
+                <span class="badge bg-secondary fs-6"><i class="bi bi-x-circle me-1"></i>Conta Inativa</span>
+            }
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- 1. Identificação Pessoal -->
+        <div class="col-md-6">
+            <div class="card h-100 border p-3">
+                <h5 class="text-primary mb-3"><i class="bi bi-person-bounding-box me-2"></i>1. Identificação Pessoal</h5>
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Nome completo</dt>
+                    <dd class="col-sm-8 fw-semibold">@Model.Nome</dd>
+
+                    <dt class="col-sm-4">Cooperado</dt>
+                    <dd class="col-sm-8">@(Model.Cooperado != null ? $"{Model.Cooperado.Nome} (CPF: {Model.Cooperado.CPF})" : "Não vinculado diretamente")</dd>
+                </dl>
+            </div>
+        </div>
+
+        <!-- 2. Contato -->
+        <div class="col-md-6">
+            <div class="card h-100 border p-3">
+                <h5 class="text-primary mb-3"><i class="bi bi-telephone me-2"></i>2. Contato</h5>
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">E-mail</dt>
+                    <dd class="col-sm-8"><a href="mailto:@Model.Email">@Model.Email</a></dd>
+
+                    <dt class="col-sm-4">Telefone Celular</dt>
+                    <dd class="col-sm-8">@(string.IsNullOrWhiteSpace(Model.Celular) ? "-" : Model.Celular)</dd>
+                </dl>
+            </div>
+        </div>
+
+        <!-- 3. Dados de Acesso e Segurança -->
+        <div class="col-md-6">
+            <div class="card h-100 border p-3">
+                <h5 class="text-primary mb-3"><i class="bi bi-shield-lock me-2"></i>3. Dados de Acesso & Segurança</h5>
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Login</dt>
+                    <dd class="col-sm-8 font-monospace fw-bold">@Model.Login</dd>
+
+                    <dt class="col-sm-4">Perfil</dt>
+                    <dd class="col-sm-8">
+                        @if (Model.Perfil == "Administrador")
+                        {
+                            <span class="badge bg-danger">Administrador (Acesso Total + MFA)</span>
+                        }
+                        else if (Model.Perfil == "Coordenador")
+                        {
+                            <span class="badge bg-warning text-dark">Coordenador (Equipes, Alocações, Ponto)</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-info text-dark">Cooperado (Consulta Própria)</span>
+                        }
+                    </dd>
+
+                    <dt class="col-sm-4">Segurança MFA</dt>
+                    <dd class="col-sm-8">@(Model.Perfil == "Administrador" ? "Obrigatório (2ª Etapa no login)" : "Padrão (Login e Senha)")</dd>
+
+                    <dt class="col-sm-4">Último Acesso</dt>
+                    <dd class="col-sm-8 text-muted">@(Model.UltimoAcesso.HasValue ? Model.UltimoAcesso.Value.ToString("dd/MM/yyyy HH:mm:ss") : "Nenhum acesso registrado")</dd>
+                </dl>
+            </div>
+        </div>
+
+        <!-- 4. Informações Funcionais -->
+        <div class="col-md-6">
+            <div class="card h-100 border p-3">
+                <h5 class="text-primary mb-3"><i class="bi bi-briefcase me-2"></i>4. Informações Funcionais</h5>
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Cargo / Função</dt>
+                    <dd class="col-sm-8">@(Model.Cargo ?? "-")</dd>
+
+                    <dt class="col-sm-4">Equipe</dt>
+                    <dd class="col-sm-8">@(Model.Equipe ?? "-")</dd>
+
+                    <dt class="col-sm-4">Contrato (empresa)</dt>
+                    <dd class="col-sm-8">@(Model.Contrato?.EmpresaNome ?? "-")</dd>
+
+                    <dt class="col-sm-4">Ingresso</dt>
+                    <dd class="col-sm-8">@(Model.DataIngresso.HasValue ? Model.DataIngresso.Value.ToString("dd/MM/yyyy") : "-")</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4 d-flex gap-2">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning px-4"><i class="bi bi-pencil me-1"></i>Editar</a>
+        <button type="button" onclick="history.back()" class="btn btn-outline-secondary px-4"><i class="bi bi-arrow-left me-1"></i>Voltar</button>
+    </div>
+</div>

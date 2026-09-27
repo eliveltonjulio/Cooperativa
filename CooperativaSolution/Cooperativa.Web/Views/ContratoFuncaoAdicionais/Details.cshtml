@@ -1,0 +1,24 @@
+﻿@model Cooperativa.Models.ContratoFuncaoAdicional
+@{
+    ViewData["Title"] = "Detalhes do vínculo de adicional";
+}
+
+<div class="card p-4">
+    <h2 class="mb-3">Detalhes do vínculo de adicional</h2>
+    <dl class="row">
+        <dt class="col-sm-3">Contrato (empresa)</dt>
+        <dd class="col-sm-9">@Model.Contrato?.EmpresaNome</dd>
+        <dt class="col-sm-3">Função</dt>
+        <dd class="col-sm-9">@Model.Funcao?.Nome</dd>
+        <dt class="col-sm-3">Adicional</dt>
+        <dd class="col-sm-9">@Model.Adicional?.Nome</dd>
+        <dt class="col-sm-3">Tipo de cálculo</dt>
+        <dd class="col-sm-9">@Model.Adicional?.TipoCalculo</dd>
+        <dt class="col-sm-3">Valor</dt>
+        <dd class="col-sm-9">@Model.Adicional?.Valor.ToString("0.00")</dd>
+    </dl>
+    <div class="mt-4 d-flex gap-2">
+        <a asp-action="Edit" asp-route-contratoId="@Model.ContratoId" asp-route-funcaoId="@Model.FuncaoId" asp-route-adicionalId="@Model.AdicionalId" class="btn btn-warning">Editar</a>
+        <button type="button" onclick="history.back()" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Voltar</button>
+    </div>
+</div>

@@ -1,0 +1,21 @@
+@model Cooperativa.Web.Models.DeleteConfirmationViewModel
+
+<form asp-controller="@Model.ControllerName" asp-action="@Model.ActionName" asp-all-route-data="Model.RouteValues" method="post">
+    <div class="modal-header">
+        <h5 class="modal-title">@Model.Title</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+        <p>@Model.Message</p>
+        @if (!string.IsNullOrWhiteSpace(Model.DisplayName))
+        {
+            <div class="alert alert-light">
+                <strong>@Model.DisplayName</strong>
+            </div>
+        }
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-danger">Excluir</button>
+    </div>
+</form>

@@ -1,0 +1,13 @@
+@model Cooperativa.Models.RegraHoraExtra
+@{ ViewData["Title"] = "Editar regra de hora extra"; }
+<div class="d-flex justify-content-between align-items-center mb-3"><div><h2 class="mb-1">Editar regra de hora extra</h2><p class="text-muted mb-0">Atualize os percentuais da regra.</p></div><a asp-action="Index" class="btn btn-outline-secondary">Voltar</a></div>
+<form asp-action="Edit" method="post" class="card border-0 shadow-sm p-4">
+    <input type="hidden" asp-for="Id" />
+    <div asp-validation-summary="All" class="alert alert-danger"></div>
+    <div class="row g-3">
+        <div class="col-md-6"><label asp-for="ContratoId" class="form-label">Contrato (empresa)</label><select asp-for="ContratoId" class="form-select"><option value="">Todos os contratos</option>@foreach (var contrato in (IEnumerable<Cooperativa.Models.Contrato>)ViewBag.Contratos){<option value="@contrato.Id">@contrato.EmpresaNome</option>}</select></div>
+        <div class="col-md-3"><label asp-for="PercentualHeComum" class="form-label">% HE comum</label><input asp-for="PercentualHeComum" class="form-control" type="number" step="0.01" min="0" /></div>
+        <div class="col-md-3"><label asp-for="PercentualHeDomingoFeriado" class="form-label">% HE domingo/feriado</label><input asp-for="PercentualHeDomingoFeriado" class="form-control" type="number" step="0.01" min="0" /></div>
+    </div>
+    <div class="mt-4 d-flex gap-2"><button type="submit" class="btn btn-success">Salvar</button><a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a></div>
+</form>

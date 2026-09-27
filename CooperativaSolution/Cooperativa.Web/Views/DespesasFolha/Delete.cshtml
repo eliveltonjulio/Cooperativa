@@ -1,0 +1,3 @@
+@model Cooperativa.Models.DespesaFolha
+@{ ViewData["Title"] = "Excluir despesa"; }
+<div class="card p-4"><h2 class="mb-3">Excluir despesa da folha</h2><p>Confirma a exclusão da despesa <strong>@Model.Nome</strong>?</p><form asp-action="Delete" method="post"><input type="hidden" asp-for="Id" /><div class="mt-4 d-flex gap-2"><button type="submit" class="btn btn-danger">Excluir</button><a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a></div></form></div>

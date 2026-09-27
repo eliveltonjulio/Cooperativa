@@ -1,0 +1,10 @@
+﻿@model Cooperativa.Models.JornadaContratual
+@{ ViewData["Title"] = "Excluir jornada contratual"; }
+<div class="card p-4">
+    <h2 class="mb-3">Excluir jornada contratual</h2>
+    <p>Confirma a exclusão da jornada contratual para a função <strong>@Model.Funcao?.Nome</strong> no contrato <strong>@Model.Contrato?.EmpresaNome</strong>?</p>
+    <form asp-action="Delete" method="post">
+        <input type="hidden" asp-for="Id" />
+        <div class="mt-4 d-flex gap-2"><button type="submit" class="btn btn-danger">Excluir</button><a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a></div>
+    </form>
+</div>

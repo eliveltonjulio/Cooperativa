@@ -1,0 +1,54 @@
+﻿@model IEnumerable<Cooperativa.Models.Alocacao>
+@{
+    ViewData["Title"] = "Alocações";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-1">Alocações</h2>
+        <p class="text-muted mb-0">Gerencie os vínculos entre cooperados, contratos e funções.</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">Nova alocação</a>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-6">
+        <input name="busca" value="@ViewBag.Busca" class="form-control" placeholder="Buscar por cooperado, contrato ou função" />
+    </div>
+    <div class="col-md-2">
+        <button class="btn btn-outline-secondary w-100">Filtrar</button>
+    </div>
+    <div class="col-md-2">
+        <a asp-action="Index" class="btn btn-outline-light text-dark w-100">Limpar</a>
+    </div>
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Cooperado</th>
+            <th>Contrato</th>
+            <th>Função</th>
+            <th>Início</th>
+            <th>Fim</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Cooperado?.Nome</td>
+                <td>@item.Contrato?.EmpresaNome</td>
+                <td>@item.Funcao?.Nome</td>
+                <td>@item.DataInicio.ToShortDateString()</td>
+                <td>@(item.DataFim?.ToShortDateString() ?? "-")</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">Detalhes</a>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning">Editar</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">Excluir</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,94 @@
+@{
+    ViewData["Title"] = "Gestão";
+    var ehAdmin = User.IsInRole("Administrador") || User.IsInRole("Admin") || !User.Identity?.IsAuthenticated == true;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="bi bi-briefcase-fill text-warning me-2"></i>Gestão</h2>
+        <p class="text-muted mb-0">Gerenciamento operacional, usuários, apuração de ponto e folhas de pagamento.</p>
+    </div>
+    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Voltar para a Página Inicial
+    </a>
+</div>
+
+<div class="row g-4">
+    <!-- Usuários -->
+    @if (ehAdmin)
+    {
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body p-4 d-flex flex-column">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="rounded-3 bg-dark bg-opacity-10 text-dark p-3 fs-3">
+                            <i class="bi bi-person-gear"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title fw-bold mb-0">Usuários</h5>
+                            <small class="text-muted">Acesso e segurança</small>
+                        </div>
+                    </div>
+                    <p class="card-text text-muted small flex-grow-1">
+                        Gerenciamento de contas de acesso ao sistema, perfis (Administrador, Coordenador, Cooperado), MFA e auditoria.
+                    </p>
+                    <div class="d-flex gap-2 mt-3">
+                        <a asp-controller="Usuarios" asp-action="Index" class="btn btn-outline-dark btn-sm flex-grow-1">
+                            <i class="bi bi-arrow-right-circle me-1"></i>Acessar Usuários
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Apuração mensal de ponto -->
+    <div class="col-md-6 col-lg-6">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body p-4 d-flex flex-column">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="rounded-3 bg-warning bg-opacity-10 text-warning p-3 fs-3">
+                        <i class="bi bi-bar-chart-line"></i>
+                    </div>
+                    <div>
+                        <h5 class="card-title fw-bold mb-0">Apuração Mensal de Ponto</h5>
+                        <small class="text-muted">Consolidação de horas</small>
+                    </div>
+                </div>
+                <p class="card-text text-muted small flex-grow-1">
+                    Apure horas normais, extras e noturnas trabalhadas pelos cooperados no mês para cálculo de remunerações.
+                </p>
+                <div class="d-flex gap-2 mt-3">
+                    <a asp-controller="ApuracoesPontoMensais" asp-action="Index" class="btn btn-outline-warning text-dark btn-sm flex-grow-1">
+                        <i class="bi bi-arrow-right-circle me-1"></i>Acessar Apuração Mensal de Ponto
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Folha de pagamento -->
+    <div class="col-md-6 col-lg-6">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body p-4 d-flex flex-column">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="rounded-3 bg-secondary bg-opacity-10 text-secondary p-3 fs-3">
+                        <i class="bi bi-cash-coin"></i>
+                    </div>
+                    <div>
+                        <h5 class="card-title fw-bold mb-0">Folha de Pagamento</h5>
+                        <small class="text-muted">Processamento mensal</small>
+                    </div>
+                </div>
+                <p class="card-text text-muted small flex-grow-1">
+                    Gere e consulte folhas de pagamento, vencimentos, adicionais, descontos e repasses dos cooperados.
+                </p>
+                <div class="d-flex gap-2 mt-3">
+                    <a asp-controller="Folha" asp-action="Index" class="btn btn-outline-secondary btn-sm flex-grow-1">
+                        <i class="bi bi-arrow-right-circle me-1"></i>Acessar Folha de Pagamento
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

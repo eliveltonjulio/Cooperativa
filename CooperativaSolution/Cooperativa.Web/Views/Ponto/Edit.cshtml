@@ -1,0 +1,91 @@
+@model Cooperativa.Models.RegistroPonto
+
+@{
+    ViewData["Title"] = "Editar ponto";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-1">Editar ponto</h2>
+        <p class="text-muted mb-0">Ajuste os detalhes do registro de ponto.</p>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary">Voltar</a>
+</div>
+
+<form asp-action="Edit" asp-route-id="@Model.Id" method="post" class="card border-0 shadow-sm p-4">
+    <div asp-validation-summary="All" class="alert alert-danger"></div>
+    <input type="hidden" asp-for="Id" />
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label">Cooperado</label>
+            <select asp-for="CooperadoId" class="form-select" required>
+                <option value="">Selecione...</option>
+                @foreach (var cooperado in ViewBag.Cooperados as IEnumerable<Cooperativa.Models.Cooperado>)
+                {
+                    <option value="@cooperado.Id">@cooperado.Nome</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Data" class="form-label"></label>
+            <input asp-for="Data" class="form-control" type="date" />
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Ocorrencia" class="form-label"></label>
+            <select asp-for="Ocorrencia" id="Ocorrencia" class="form-select">
+                <option value="">Nenhuma (dia trabalhado comum)</option>
+                @foreach (var ocorrencia in Cooperativa.Models.OcorrenciasPonto.Todas)
+                {
+                    <option value="@ocorrencia.Codigo" data-impacto="@ocorrencia.TipoImpactoFolha">@ocorrencia.Descricao (@ocorrencia.Codigo)</option>
+                }
+            </select>
+            <span asp-validation-for="Ocorrencia" class="text-danger"></span>
+            <small id="ocorrenciaImpacto" class="text-muted d-block mt-1">Sem ocorrência: registro comum de jornada trabalhada.</small>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Entrada" class="form-label"></label>
+            <input asp-for="Entrada" class="form-control" type="time" />
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Saida" class="form-label"></label>
+            <input asp-for="Saida" class="form-control" type="time" />
+        </div>
+        <div class="col-md-6">
+            <label asp-for="InicioIntervalo" class="form-label"></label>
+            <input asp-for="InicioIntervalo" class="form-control" type="time" />
+        </div>
+        <div class="col-md-6">
+            <label asp-for="FimIntervalo" class="form-label"></label>
+            <input asp-for="FimIntervalo" class="form-control" type="time" />
+        </div>
+        <div class="col-12">
+            <label asp-for="Observacao" class="form-label"></label>
+            <textarea asp-for="Observacao" class="form-control" rows="4"></textarea>
+        </div>
+    </div>
+
+    <div class="mt-4 d-flex gap-2">
+        <button type="submit" class="btn btn-success">Salvar alterações</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+    </div>
+</form>
+
+<script>
+    (function () {
+        var ocorrenciaSelect = document.getElementById('Ocorrencia');
+        var ocorrenciaImpacto = document.getElementById('ocorrenciaImpacto');
+        if (!ocorrenciaSelect || !ocorrenciaImpacto) return;
+
+        function atualizarImpacto() {
+            var opcao = ocorrenciaSelect.options[ocorrenciaSelect.selectedIndex];
+            var impacto = opcao && opcao.dataset.impacto ? opcao.dataset.impacto : null;
+            ocorrenciaImpacto.textContent = impacto
+                ? 'Impacto na folha: ' + impacto + '.'
+                : 'Sem ocorrência: registro comum de jornada trabalhada.';
+        }
+
+        ocorrenciaSelect.addEventListener('change', atualizarImpacto);
+        atualizarImpacto();
+    })();
+</script>

@@ -1,0 +1,17 @@
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Infrastructure\bin\ValidationTests\Cooperativa.Infrastructure.deps.json
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Infrastructure\bin\ValidationTests\Cooperativa.Infrastructure.dll
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Infrastructure\bin\ValidationTests\Cooperativa.Infrastructure.pdb
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Infrastructure\bin\ValidationTests\Cooperativa.Application.dll
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Infrastructure\bin\ValidationTests\Cooperativa.Domain.dll
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Infrastructure\bin\ValidationTests\Cooperativa.Domain.pdb
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Infrastructure\bin\ValidationTests\Cooperativa.Application.pdb
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Infrastructure\obj\ValidationTests\Cooperativa.Infrastructure.csproj.AssemblyReference.cache
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Infrastructure\obj\ValidationTests\Cooperativa.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Infrastructure\obj\ValidationTests\Cooperativa.Infrastructure.AssemblyInfoInputs.cache
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Infrastructure\obj\ValidationTests\Cooperativa.Infrastructure.AssemblyInfo.cs
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Infrastructure\obj\ValidationTests\Cooperativa.Infrastructure.csproj.CoreCompileInputs.cache
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Infrastructure\obj\ValidationTests\Cooperat.D571400F.Up2Date
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Infrastructure\obj\ValidationTests\Cooperativa.Infrastructure.dll
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Infrastructure\obj\ValidationTests\refint\Cooperativa.Infrastructure.dll
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Infrastructure\obj\ValidationTests\Cooperativa.Infrastructure.pdb
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Infrastructure\obj\ValidationTests\ref\Cooperativa.Infrastructure.dll

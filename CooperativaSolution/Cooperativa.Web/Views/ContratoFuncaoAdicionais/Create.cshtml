@@ -1,0 +1,52 @@
+﻿@model Cooperativa.Models.ContratoFuncaoAdicional
+@{
+    ViewData["Title"] = "Novo vínculo de adicional";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-1">Novo vínculo de adicional</h2>
+        <p class="text-muted mb-0">Associe um adicional a uma função em um contrato cadastrado.</p>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary">Voltar</a>
+</div>
+
+<form asp-action="Create" method="post" class="card border-0 shadow-sm p-4">
+    <div asp-validation-summary="All" class="alert alert-danger"></div>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label asp-for="ContratoId" class="form-label">Contrato (empresa)</label>
+            <select asp-for="ContratoId" class="form-select">
+                <option value="">Selecione...</option>
+                @foreach (var contrato in (IEnumerable<Cooperativa.Models.Contrato>)ViewBag.Contratos)
+                {
+                    <option value="@contrato.Id">@contrato.EmpresaNome</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="FuncaoId" class="form-label">Função</label>
+            <select asp-for="FuncaoId" class="form-select">
+                <option value="">Selecione...</option>
+                @foreach (var funcao in (IEnumerable<Cooperativa.Models.Funcao>)ViewBag.Funcoes)
+                {
+                    <option value="@funcao.Id">@funcao.Nome</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="AdicionalId" class="form-label">Tipo de adicional</label>
+            <select asp-for="AdicionalId" class="form-select">
+                <option value="">Selecione...</option>
+                @foreach (var adicional in (IEnumerable<Cooperativa.Models.TipoAdicional>)ViewBag.Adicionais)
+                {
+                    <option value="@adicional.Id">@adicional.Nome (@adicional.TipoCalculo)</option>
+                }
+            </select>
+        </div>
+    </div>
+    <div class="mt-4 d-flex gap-2">
+        <button type="submit" class="btn btn-success">Salvar</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+    </div>
+</form>

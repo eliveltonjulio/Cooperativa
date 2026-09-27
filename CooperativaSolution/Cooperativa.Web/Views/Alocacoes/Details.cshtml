@@ -1,0 +1,24 @@
+﻿@model Cooperativa.Models.Alocacao
+@{
+    ViewData["Title"] = "Detalhes da alocação";
+}
+
+<div class="card p-4">
+    <h2 class="mb-3">Detalhes da alocação</h2>
+    <dl class="row">
+        <dt class="col-sm-3">Cooperado</dt>
+        <dd class="col-sm-9">@Model.Cooperado?.Nome</dd>
+        <dt class="col-sm-3">Contrato</dt>
+        <dd class="col-sm-9">@Model.Contrato?.EmpresaNome</dd>
+        <dt class="col-sm-3">Função</dt>
+        <dd class="col-sm-9">@Model.Funcao?.Nome</dd>
+        <dt class="col-sm-3">Data de início</dt>
+        <dd class="col-sm-9">@Model.DataInicio.ToShortDateString()</dd>
+        <dt class="col-sm-3">Data de fim</dt>
+        <dd class="col-sm-9">@(Model.DataFim?.ToShortDateString() ?? "-")</dd>
+    </dl>
+    <div class="mt-4 d-flex gap-2">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Editar</a>
+        <button type="button" onclick="history.back()" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Voltar</button>
+    </div>
+</div>

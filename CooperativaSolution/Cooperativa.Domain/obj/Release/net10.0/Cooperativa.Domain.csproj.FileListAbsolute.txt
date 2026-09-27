@@ -1,0 +1,11 @@
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Domain\bin\Release\net10.0\Cooperativa.Domain.deps.json
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Domain\bin\Release\net10.0\Cooperativa.Domain.dll
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Domain\bin\Release\net10.0\Cooperativa.Domain.pdb
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Domain\obj\Release\net10.0\Cooperativa.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Domain\obj\Release\net10.0\Cooperativa.Domain.AssemblyInfoInputs.cache
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Domain\obj\Release\net10.0\Cooperativa.Domain.AssemblyInfo.cs
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Domain\obj\Release\net10.0\Cooperativa.Domain.csproj.CoreCompileInputs.cache
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Domain\obj\Release\net10.0\Cooperativa.Domain.dll
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Domain\obj\Release\net10.0\refint\Cooperativa.Domain.dll
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Domain\obj\Release\net10.0\Cooperativa.Domain.pdb
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Domain\obj\Release\net10.0\ref\Cooperativa.Domain.dll

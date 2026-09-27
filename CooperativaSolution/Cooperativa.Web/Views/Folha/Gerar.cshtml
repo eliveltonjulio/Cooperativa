@@ -1,0 +1,88 @@
+@model Cooperativa.Web.Models.GerarFolhaViewModel
+
+@{
+    ViewData["Title"] = "Gerar folha";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-1">Gerar folha</h2>
+        <p class="text-muted mb-0">O cálculo usa os registros de ponto (horas normais, extras e noturnas), as remunerações e os adicionais por contrato/função, subtraindo as despesas da folha.</p>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary">Voltar</a>
+</div>
+
+<form asp-action="Gerar" method="post" class="card border-0 shadow-sm p-4">
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label asp-for="Competencia" class="form-label"></label>
+            <input asp-for="Competencia" class="form-control" type="month" />
+            <span asp-validation-for="Competencia" class="text-danger small"></span>
+        </div>
+        <div class="col-md-8">
+            <label class="form-label d-block">Gerar folha por</label>
+            <div class="d-flex gap-4 pt-1">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" asp-for="Escopo" value="COOPERADO" id="escopoCooperado" />
+                    <label class="form-check-label" for="escopoCooperado">Cooperado</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" asp-for="Escopo" value="CONTRATO" id="escopoContrato" />
+                    <label class="form-check-label" for="escopoContrato">Contrato (todos os cooperados alocados)</label>
+                </div>
+            </div>
+            <span asp-validation-for="Escopo" class="text-danger small"></span>
+        </div>
+        <div class="col-md-6" id="campoCooperado">
+            <label asp-for="CooperadoId" class="form-label"></label>
+            <select asp-for="CooperadoId" class="form-select">
+                <option value="">Selecione...</option>
+                @foreach (var cooperado in ViewBag.Cooperados as IEnumerable<Cooperativa.Models.Cooperado>)
+                {
+                    <option value="@cooperado.Id">@cooperado.Nome</option>
+                }
+            </select>
+            <span asp-validation-for="CooperadoId" class="text-danger small"></span>
+        </div>
+        <div class="col-md-6 d-none" id="campoContrato">
+            <label asp-for="ContratoId" class="form-label"></label>
+            <select asp-for="ContratoId" class="form-select">
+                <option value="">Selecione...</option>
+                @foreach (var contrato in ViewBag.Contratos as IEnumerable<Cooperativa.Models.Contrato> ?? Enumerable.Empty<Cooperativa.Models.Contrato>())
+                {
+                    <option value="@contrato.Id">@contrato.EmpresaNome</option>
+                }
+            </select>
+            <span asp-validation-for="ContratoId" class="text-danger small"></span>
+        </div>
+    </div>
+
+    <div class="mt-4 d-flex gap-2">
+        <button type="submit" class="btn btn-warning"><i class="bi bi-gear me-1"></i>Gerar folha</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        (function () {
+            var campoCooperado = document.getElementById('campoCooperado');
+            var campoContrato = document.getElementById('campoContrato');
+
+            function aplicarEscopo() {
+                var selecionado = document.querySelector('input[name="Escopo"]:checked');
+                var porCooperado = !selecionado || selecionado.value === 'COOPERADO';
+                campoCooperado.classList.toggle('d-none', !porCooperado);
+                campoContrato.classList.toggle('d-none', porCooperado);
+            }
+
+            document.querySelectorAll('input[name="Escopo"]').forEach(function (radio) {
+                radio.addEventListener('change', aplicarEscopo);
+            });
+            aplicarEscopo();
+        })();
+    </script>
+}
+

@@ -1,0 +1,69 @@
+@model IEnumerable<Cooperativa.Models.FolhaPagamento>
+
+@{
+    ViewData["Title"] = "Folha";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-1">Folha de Pagamento</h2>
+        <p class="text-muted mb-0">Gerencie as folhas e o cálculo líquido dos cooperados.</p>
+    </div>
+    <a class="btn btn-warning" asp-action="Gerar"><i class="bi bi-gear me-1"></i>Gerar folha</a>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-6">
+        <input type="text" name="busca" value="@ViewBag.Busca" class="form-control" placeholder="Buscar por cooperado" />
+    </div>
+    <div class="col-md-4">
+        <input type="month" name="competencia" value="@ViewBag.Competencia" class="form-control" />
+    </div>
+    <div class="col-md-2 d-flex gap-2">
+        <button type="submit" class="btn btn-outline-warning">Filtrar</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Limpar</a>
+    </div>
+</form>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Nenhuma folha cadastrada.</div>
+}
+else
+{
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Competência</th>
+                        <th>Cooperado</th>
+                        <th>Salário</th>
+                        <th>Adicional</th>
+                        <th>Descontos</th>
+                        <th>Líquido</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var folha in Model)
+                    {
+                        <tr>
+                            <td>@folha.Competencia.ToString("MM/yyyy")</td>
+                            <td>@folha.Cooperado?.Nome</td>
+                            <td>@folha.Salario.ToString("C")</td>
+                            <td>@folha.Adicional.ToString("C")</td>
+                            <td>@folha.Descontos.ToString("C")</td>
+                            <td><strong>@folha.Liquido.ToString("C")</strong></td>
+                            <td class="text-end">
+                                <a class="btn btn-sm btn-outline-secondary" asp-action="Details" asp-route-id="@folha.Id">Detalhes</a>
+                                <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@folha.Id">Editar</a>
+                                <a class="btn btn-sm btn-outline-danger" asp-action="Delete" asp-route-id="@folha.Id">Excluir</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

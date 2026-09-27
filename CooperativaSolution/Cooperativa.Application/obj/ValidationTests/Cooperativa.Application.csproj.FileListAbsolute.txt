@@ -1,0 +1,15 @@
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\bin\ValidationTests\Cooperativa.Application.deps.json
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\bin\ValidationTests\Cooperativa.Application.dll
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\bin\ValidationTests\Cooperativa.Application.pdb
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\bin\ValidationTests\Cooperativa.Domain.dll
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\bin\ValidationTests\Cooperativa.Domain.pdb
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\obj\ValidationTests\Cooperativa.Application.csproj.AssemblyReference.cache
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\obj\ValidationTests\Cooperativa.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\obj\ValidationTests\Cooperativa.Application.AssemblyInfoInputs.cache
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\obj\ValidationTests\Cooperativa.Application.AssemblyInfo.cs
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\obj\ValidationTests\Cooperativa.Application.csproj.CoreCompileInputs.cache
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\obj\ValidationTests\Cooperat.34404865.Up2Date
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\obj\ValidationTests\Cooperativa.Application.dll
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\obj\ValidationTests\refint\Cooperativa.Application.dll
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\obj\ValidationTests\Cooperativa.Application.pdb
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\obj\ValidationTests\ref\Cooperativa.Application.dll

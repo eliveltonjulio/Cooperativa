@@ -1,0 +1,15 @@
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\bin\ValidationTiposAdicionais\Cooperativa.Application.deps.json
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\bin\ValidationTiposAdicionais\Cooperativa.Application.dll
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\bin\ValidationTiposAdicionais\Cooperativa.Application.pdb
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\bin\ValidationTiposAdicionais\Cooperativa.Domain.dll
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\bin\ValidationTiposAdicionais\Cooperativa.Domain.pdb
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\obj\ValidationTiposAdicionais\Cooperativa.Application.csproj.AssemblyReference.cache
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\obj\ValidationTiposAdicionais\Cooperativa.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\obj\ValidationTiposAdicionais\Cooperativa.Application.AssemblyInfoInputs.cache
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\obj\ValidationTiposAdicionais\Cooperativa.Application.AssemblyInfo.cs
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\obj\ValidationTiposAdicionais\Cooperativa.Application.csproj.CoreCompileInputs.cache
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\obj\ValidationTiposAdicionais\Cooperat.34404865.Up2Date
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\obj\ValidationTiposAdicionais\Cooperativa.Application.dll
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\obj\ValidationTiposAdicionais\refint\Cooperativa.Application.dll
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\obj\ValidationTiposAdicionais\Cooperativa.Application.pdb
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\obj\ValidationTiposAdicionais\ref\Cooperativa.Application.dll

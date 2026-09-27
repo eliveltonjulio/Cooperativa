@@ -1,0 +1,11 @@
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Domain\bin\ValidationTests\Cooperativa.Domain.deps.json
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Domain\bin\ValidationTests\Cooperativa.Domain.dll
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Domain\bin\ValidationTests\Cooperativa.Domain.pdb
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Domain\obj\ValidationTests\Cooperativa.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Domain\obj\ValidationTests\Cooperativa.Domain.AssemblyInfoInputs.cache
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Domain\obj\ValidationTests\Cooperativa.Domain.AssemblyInfo.cs
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Domain\obj\ValidationTests\Cooperativa.Domain.csproj.CoreCompileInputs.cache
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Domain\obj\ValidationTests\Cooperativa.Domain.dll
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Domain\obj\ValidationTests\refint\Cooperativa.Domain.dll
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Domain\obj\ValidationTests\Cooperativa.Domain.pdb
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Domain\obj\ValidationTests\ref\Cooperativa.Domain.dll

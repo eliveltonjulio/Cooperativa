@@ -1,0 +1,11 @@
+@model Cooperativa.Models.RegraHoraExtra
+@{ ViewData["Title"] = "Detalhes da regra de hora extra"; }
+<div class="card p-4">
+    <h2 class="mb-3">Detalhes da regra de hora extra</h2>
+    <dl class="row">
+        <dt class="col-sm-3">Contrato (empresa)</dt><dd class="col-sm-9">@(Model.Contrato?.EmpresaNome ?? "Todas as empresas")</dd>
+        <dt class="col-sm-3">% HE comum</dt><dd class="col-sm-9">@Model.PercentualHeComum.ToString("0.00")%</dd>
+        <dt class="col-sm-3">% HE domingo/feriado</dt><dd class="col-sm-9">@Model.PercentualHeDomingoFeriado.ToString("0.00")%</dd>
+    </dl>
+    <div class="mt-4 d-flex gap-2"><a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Editar</a><button type="button" onclick="history.back()" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Voltar</button></div>
+</div>

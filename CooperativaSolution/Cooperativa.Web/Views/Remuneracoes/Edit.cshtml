@@ -1,0 +1,127 @@
+﻿@model Cooperativa.Models.Remuneracao
+@{
+    ViewData["Title"] = "Editar remuneração";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-1">Editar remuneração</h2>
+        <p class="text-muted mb-0">Atualize a remuneração por contrato, função e tipo (dia ou hora).</p>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary">Voltar</a>
+</div>
+
+<form asp-action="Edit" asp-route-id="@Model.Id" method="post" class="card border-0 shadow-sm p-4">
+    <input type="hidden" asp-for="Id" />
+    <div asp-validation-summary="All" class="alert alert-danger"></div>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label class="form-label">Contrato (empresa)</label>
+            <select asp-for="ContratoId" class="form-select">
+                <option value="">Selecione...</option>
+                @if (ViewBag.Contratos is IEnumerable<Cooperativa.Models.Contrato> contratos)
+                {
+                    @foreach (var contrato in contratos)
+                    {
+                        <option value="@contrato.Id">@contrato.EmpresaNome</option>
+                    }
+                }
+            </select>
+            <span asp-validation-for="ContratoId" class="text-danger small"></span>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Função</label>
+            <select asp-for="FuncaoId" class="form-select">
+                <option value="">Selecione...</option>
+                @if (ViewBag.Funcoes is IEnumerable<Cooperativa.Models.Funcao> funcoes)
+                {
+                    @foreach (var funcao in funcoes)
+                    {
+                        <option value="@funcao.Id">@funcao.Nome</option>
+                    }
+                }
+            </select>
+            <span asp-validation-for="FuncaoId" class="text-danger small"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="DataInicio" class="form-label"></label>
+            <input asp-for="DataInicio" class="form-control" type="date" />
+            <span asp-validation-for="DataInicio" class="text-danger small"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="DataFim" class="form-label"></label>
+            <input asp-for="DataFim" class="form-control" type="date" />
+            <div class="form-text">Opcional: deixe em branco para remuneração vigente sem data de término.</div>
+            <span asp-validation-for="DataFim" class="text-danger small"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="ValorTexto" class="form-label"></label>
+            <input asp-for="ValorTexto" id="Valor" class="form-control" inputmode="decimal" placeholder="1.500,50" autocomplete="off" />
+            <span asp-validation-for="ValorTexto" class="text-danger small"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="TipoRemuneracao" class="form-label"></label>
+            <select asp-for="TipoRemuneracao" class="form-select">
+                <option value="DIA">Por dia</option>
+                <option value="HORA">Por hora</option>
+            </select>
+            <span asp-validation-for="TipoRemuneracao" class="text-danger small"></span>
+        </div>
+    </div>
+    <div class="mt-4 d-flex gap-2">
+        <button type="submit" class="btn btn-success">Salvar</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            const campo = document.getElementById('Valor');
+            if (!campo) return;
+
+            const apenasValidos = (valor) => valor.replace(/[^0-9.,]/g, '');
+
+            // Converte o digitado (1.500,50 / 1500,50 / 1500.50 / 1500) em número.
+            const paraNumero = (texto) => {
+                const limpo = apenasValidos(texto);
+                if (!limpo) return null;
+
+                const temVirgula = limpo.includes(',');
+                const temPonto = limpo.includes('.');
+                let normalizado;
+
+                if (temVirgula && temPonto) {
+                    normalizado = limpo.lastIndexOf(',') > limpo.lastIndexOf('.')
+                        ? limpo.replace(/\./g, '').replace(',', '.')
+                        : limpo.replace(/,/g, '');
+                } else if (temVirgula) {
+                    normalizado = limpo.replace(',', '.');
+                } else if (temPonto) {
+                    const partes = limpo.split('.');
+                    const ultima = partes[partes.length - 1];
+                    normalizado = (ultima.length === 3 && limpo.length > 4) ? limpo.replace(/\./g, '') : limpo;
+                } else {
+                    normalizado = limpo;
+                }
+
+                const numero = Number(normalizado);
+                return Number.isFinite(numero) ? numero : null;
+            };
+
+            const paraMoeda = (numero) => numero.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+            campo.addEventListener('input', () => {
+                const valorDigitado = campo.value;
+                const limpo = apenasValidos(valorDigitado);
+                if (valorDigitado !== limpo) campo.value = limpo;
+            });
+
+            campo.addEventListener('blur', () => {
+                const numero = paraNumero(campo.value);
+                if (numero !== null) campo.value = paraMoeda(numero);
+            });
+        })();
+    </script>
+}

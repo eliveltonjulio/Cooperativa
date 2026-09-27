@@ -1,0 +1,36 @@
+@model IEnumerable<Cooperativa.Models.DespesaFolha>
+@{
+    ViewData["Title"] = "Despesas da folha";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-1">Despesas da folha</h2>
+        <p class="text-muted mb-0">Cadastre INSS, taxa de administração e outros descontos.</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">Nova despesa</a>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-5"><input name="busca" value="@ViewBag.Busca" class="form-control" placeholder="Buscar por nome ou cálculo" /></div>
+    <div class="col-md-3"><select name="status" class="form-select"><option value="ativos" selected="@(ViewBag.Status == "ativos")">Ativas</option><option value="inativos" selected="@(ViewBag.Status == "inativos")">Inativas</option><option value="todos" selected="@(ViewBag.Status == "todos")">Todas</option></select></div>
+    <div class="col-md-2"><button class="btn btn-outline-secondary w-100">Filtrar</button></div>
+    <div class="col-md-2"><a asp-action="Index" class="btn btn-outline-light text-dark w-100">Limpar</a></div>
+</form>
+
+<table class="table table-striped">
+    <thead><tr><th>Despesa</th><th>Tipo de cálculo</th><th>Valor</th><th>Teto de retenção</th><th>Status</th><th>Ações</th></tr></thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Nome</td>
+            <td>@(item.TipoCalculo == "VALOR_FIXO" ? "Valor fixo" : "% da remuneração mensal")</td>
+            <td>@item.Valor.ToString("0.00")@(item.TipoCalculo == "PERCENTUAL_REMUNERACAO" ? "%" : "")</td>
+            <td>@(item.TetoRetencao?.ToString("C") ?? "-")</td>
+            <td><span class="badge @(item.Ativo ? "bg-success" : "bg-secondary")">@(item.Ativo ? "Ativa" : "Inativa")</span></td>
+            <td><a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">Detalhes</a> <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning">Editar</a> <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">Excluir</a></td>
+        </tr>
+    }
+    </tbody>
+</table>

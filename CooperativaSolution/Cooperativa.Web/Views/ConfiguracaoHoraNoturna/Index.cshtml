@@ -1,0 +1,25 @@
+@model Cooperativa.Models.ConfiguracaoHoraNoturna
+@{ ViewData["Title"] = "Configuração de hora noturna"; }
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-1">Configuração de hora noturna</h2>
+        <p class="text-muted mb-0">Defina o intervalo legal noturno e se a cooperativa adota a hora reduzida.</p>
+    </div>
+</div>
+<form asp-action="Index" method="post" class="card border-0 shadow-sm p-4">
+    <div asp-validation-summary="All" class="alert alert-danger"></div>
+    <div class="row g-3">
+        <div class="col-md-4"><label asp-for="HoraInicio" class="form-label"></label><input asp-for="HoraInicio" class="form-control" type="time" /></div>
+        <div class="col-md-4"><label asp-for="HoraFim" class="form-label"></label><input asp-for="HoraFim" class="form-control" type="time" /></div>
+        <div class="col-md-4 d-flex align-items-end">
+            <div class="form-check">
+                <input asp-for="HoraReduzida" class="form-check-input" />
+                <label asp-for="HoraReduzida" class="form-check-label"></label>
+            </div>
+        </div>
+        <div class="col-12">
+            <p class="text-muted small mb-0">Quando ativada, cada hora noturna trabalhada equivale a 52min30s (regra da CLT). Quando desativada, a hora noturna é contada como 60 minutos cheios.</p>
+        </div>
+    </div>
+    <div class="mt-4 d-flex gap-2"><button type="submit" class="btn btn-success">Salvar</button></div>
+</form>

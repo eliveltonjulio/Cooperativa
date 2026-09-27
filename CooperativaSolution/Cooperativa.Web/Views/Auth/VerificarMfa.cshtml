@@ -1,0 +1,60 @@
+@model Cooperativa.Web.Models.MfaViewModel
+@{
+    ViewData["Title"] = "Autenticação em 2 Etapas (MFA)";
+}
+
+<div class="row justify-content-center pt-4">
+    <div class="col-md-5 col-lg-4">
+        <div class="text-center mb-4">
+            <div class="d-inline-block rounded-circle bg-warning-subtle text-warning p-3 mb-2 shadow-sm">
+                <i class="bi bi-shield-lock-fill fs-2 text-warning"></i>
+            </div>
+            <h3 class="fw-bold text-dark">Autenticação MFA</h3>
+            <p class="text-muted small">Segurança adicional obrigatória para Administradores</p>
+        </div>
+
+        <div class="card border-0 shadow-sm p-4">
+            @if (TempData["MensagemInfo"] is string info)
+            {
+                <div class="alert alert-info py-2 small mb-3">
+                    <i class="bi bi-info-circle me-1"></i>@info
+                </div>
+            }
+
+            @if (TempData["MfaCodigoSimulado"] is string codigoSimulado)
+            {
+                <div class="alert alert-secondary py-2 small mb-3 border-dashed">
+                    <strong>Código MFA (Demonstração):</strong> <span class="badge bg-dark fs-6 font-monospace">@codigoSimulado</span>
+                </div>
+            }
+
+            <form asp-action="VerificarMfa" method="post">
+                <input type="hidden" asp-for="Login" />
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Codigo" class="form-label fw-semibold">Código de 6 dígitos</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="bi bi-qr-code"></i></span>
+                        <input asp-for="Codigo" class="form-control text-center font-monospace fs-4" placeholder="000000" maxlength="6" autofocus />
+                    </div>
+                    <span asp-validation-for="Codigo" class="text-danger small"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold mt-2 shadow-sm">
+                    <i class="bi bi-check2-circle me-1"></i>Confirmar Código
+                </button>
+
+                <div class="text-center mt-3">
+                    <a asp-action="Login" class="small text-muted text-decoration-none">
+                        <i class="bi bi-arrow-left me-1"></i>Voltar ao login
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

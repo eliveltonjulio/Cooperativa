@@ -1,0 +1,45 @@
+﻿@model Cooperativa.Models.Remuneracao
+@{
+    ViewData["Title"] = "Detalhes da remuneração";
+}
+
+<div class="card p-4">
+    <h2 class="mb-3">Detalhes da remuneração</h2>
+    <dl class="row">
+        <dt class="col-sm-3">Contrato (empresa)</dt>
+        <dd class="col-sm-9">@Model.Contrato?.EmpresaNome</dd>
+        <dt class="col-sm-3">Função</dt>
+        <dd class="col-sm-9">@Model.Funcao?.Nome</dd>
+        <dt class="col-sm-3">Data de início</dt>
+        <dd class="col-sm-9">@Model.DataInicio.ToString("dd/MM/yyyy")</dd>
+        <dt class="col-sm-3">Data fim</dt>
+        <dd class="col-sm-9">@(Model.DataFim?.ToString("dd/MM/yyyy") ?? "Sem data de término (vigente)")</dd>
+        <dt class="col-sm-3">Valor</dt>
+        <dd class="col-sm-9">
+            @Model.Valor.ToString("C")
+            @if (Model.TipoRemuneracao == "HORA")
+            {
+                <span class="text-muted">(por hora)</span>
+            }
+            else
+            {
+                <span class="text-muted">(por dia)</span>
+            }
+        </dd>
+        <dt class="col-sm-3">Tipo de remuneração</dt>
+        <dd class="col-sm-9">
+            @if (Model.TipoRemuneracao == "HORA")
+            {
+                <span class="badge bg-info text-dark">Por hora</span>
+            }
+            else
+            {
+                <span class="badge bg-secondary">Por dia</span>
+            }
+        </dd>
+    </dl>
+    <div class="mt-4 d-flex gap-2">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Editar</a>
+        <button type="button" onclick="history.back()" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Voltar</button>
+    </div>
+</div>

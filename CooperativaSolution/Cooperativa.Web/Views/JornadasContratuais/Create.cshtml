@@ -1,0 +1,153 @@
+﻿@model Cooperativa.Web.Models.JornadaSemanalViewModel
+@{
+    ViewData["Title"] = "Nova jornada contratual";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-1">Nova jornada contratual</h2>
+        <p class="text-muted mb-0">Cadastre a carga horária e os horários específicos para cada dia da semana.</p>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary">Voltar</a>
+</div>
+
+<form asp-action="Create" method="post" class="card border-0 shadow-sm p-4">
+    <div asp-validation-summary="All" class="alert alert-danger"></div>
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <label asp-for="ContratoId" class="form-label fw-bold">Contrato (empresa)</label>
+            <select asp-for="ContratoId" class="form-select" asp-items="@(new SelectList(ViewBag.Contratos, "Id", "EmpresaNome"))">
+                <option value="">Selecione o contrato...</option>
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="FuncaoId" class="form-label fw-bold">Função</label>
+            <select asp-for="FuncaoId" class="form-select" asp-items="@(new SelectList(ViewBag.Funcoes, "Id", "Nome"))">
+                <option value="">Selecione a função...</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0 text-primary"><i class="bi bi-clock-history me-2"></i>Horários por Dia da Semana</h5>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="btnCopiarPrimeiroAtivo">
+                <i class="bi bi-copy me-1"></i>Replicar 1º dia para demais
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-primary" id="btnPadraoComercial">
+                <i class="bi bi-calendar2-week me-1"></i>Segunda a Sexta (08h às 17h)
+            </button>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th style="width: 180px;">Dia da semana</th>
+                    <th style="width: 130px;" class="text-center">Trabalha?</th>
+                    <th>Início da jornada</th>
+                    <th>Fim da jornada</th>
+                    <th>Início intervalo</th>
+                    <th>Fim intervalo</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.Dias.Count; i++)
+                {
+                    <tr id="linha_@i" class="@(Model.Dias[i].Ativo ? "" : "table-light text-muted opacity-75")">
+                        <td>
+                            <input type="hidden" asp-for="Dias[i].DiaSemanaValor" />
+                            <input type="hidden" asp-for="Dias[i].NomeDia" />
+                            <strong>@Model.Dias[i].NomeDia</strong>
+                        </td>
+                        <td class="text-center">
+                            <div class="form-check form-switch d-inline-block">
+                                <input class="form-check-input switch-dia" type="checkbox" asp-for="Dias[i].Ativo" data-index="@i" id="switch_@i" />
+                            </div>
+                        </td>
+                        <td>
+                            <input asp-for="Dias[i].HoraInicio" class="form-control form-control-sm campo-horario campo-dia-@i" type="time" disabled="@(!Model.Dias[i].Ativo)" />
+                        </td>
+                        <td>
+                            <input asp-for="Dias[i].HoraFim" class="form-control form-control-sm campo-horario campo-dia-@i" type="time" disabled="@(!Model.Dias[i].Ativo)" />
+                        </td>
+                        <td>
+                            <input asp-for="Dias[i].HoraInicioIntervalo" class="form-control form-control-sm campo-horario campo-dia-@i" type="time" disabled="@(!Model.Dias[i].Ativo)" />
+                        </td>
+                        <td>
+                            <input asp-for="Dias[i].HoraFimIntervalo" class="form-control form-control-sm campo-horario campo-dia-@i" type="time" disabled="@(!Model.Dias[i].Ativo)" />
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-4 d-flex gap-2">
+        <button type="submit" class="btn btn-success"><i class="bi bi-check-lg me-1"></i>Salvar jornada</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.switch-dia').forEach(sw => {
+            sw.addEventListener('change', function () {
+                const idx = this.getAttribute('data-index');
+                const linha = document.getElementById(`linha_${idx}`);
+                const campos = document.querySelectorAll(`.campo-dia-${idx}`);
+                if (this.checked) {
+                    linha.classList.remove('table-light', 'text-muted', 'opacity-75');
+                    campos.forEach(c => c.removeAttribute('disabled'));
+                } else {
+                    linha.classList.add('table-light', 'text-muted', 'opacity-75');
+                    campos.forEach(c => c.setAttribute('disabled', 'disabled'));
+                }
+            });
+        });
+
+        document.getElementById('btnCopiarPrimeiroAtivo')?.addEventListener('click', function () {
+            const primeiroAtivoSwitch = document.querySelector('.switch-dia:checked');
+            if (!primeiroAtivoSwitch) return;
+
+            const baseIdx = primeiroAtivoSwitch.getAttribute('data-index');
+            const inicio = document.querySelector(`input[name="Dias[${baseIdx}].HoraInicio"]`)?.value;
+            const fim = document.querySelector(`input[name="Dias[${baseIdx}].HoraFim"]`)?.value;
+            const iniInt = document.querySelector(`input[name="Dias[${baseIdx}].HoraInicioIntervalo"]`)?.value;
+            const fimInt = document.querySelector(`input[name="Dias[${baseIdx}].HoraFimIntervalo"]`)?.value;
+
+            document.querySelectorAll('.switch-dia:checked').forEach(sw => {
+                const idx = sw.getAttribute('data-index');
+                if (idx !== baseIdx) {
+                    const inputIni = document.querySelector(`input[name="Dias[${idx}].HoraInicio"]`);
+                    const inputFim = document.querySelector(`input[name="Dias[${idx}].HoraFim"]`);
+                    const inputIniInt = document.querySelector(`input[name="Dias[${idx}].HoraInicioIntervalo"]`);
+                    const inputFimInt = document.querySelector(`input[name="Dias[${idx}].HoraFimIntervalo"]`);
+
+                    if (inputIni && inicio) inputIni.value = inicio;
+                    if (inputFim && fim) inputFim.value = fim;
+                    if (inputIniInt) inputIniInt.value = iniInt || '';
+                    if (inputFimInt) inputFimInt.value = fimInt || '';
+                }
+            });
+        });
+
+        document.getElementById('btnPadraoComercial')?.addEventListener('click', function () {
+            for (let i = 0; i < 7; i++) {
+                const sw = document.getElementById(`switch_${i}`);
+                const isSegSex = i < 5;
+                if (sw) {
+                    sw.checked = isSegSex;
+                    sw.dispatchEvent(new Event('change'));
+                }
+                if (isSegSex) {
+                    const inputIni = document.querySelector(`input[name="Dias[${i}].HoraInicio"]`);
+                    const inputFim = document.querySelector(`input[name="Dias[${i}].HoraFim"]`);
+                    if (inputIni) inputIni.value = "08:00";
+                    if (inputFim) inputFim.value = "17:00";
+                }
+            }
+        });
+    </script>
+}

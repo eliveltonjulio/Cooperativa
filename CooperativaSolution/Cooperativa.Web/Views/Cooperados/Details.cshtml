@@ -1,0 +1,137 @@
+@model Cooperativa.Models.Cooperado
+
+@{
+    ViewData["Title"] = "Detalhes do cooperado";
+    var ehCooperado = User.IsInRole("Cooperado") && !User.IsInRole("Administrador") && !User.IsInRole("Admin") && !User.IsInRole("Coordenador") && !User.IsInRole("Gestor");
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-1">Detalhes do cooperado</h2>
+        <p class="text-muted mb-0">Informações completas do associado.</p>
+    </div>
+    <button type="button" onclick="history.back()" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Voltar
+    </button>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-start mb-4">
+            <div>
+                <h4 class="mb-1">@Model.Nome</h4>
+                <p class="text-muted mb-0">@Model.Email</p>
+            </div>
+            <span class="badge @(Model.Ativo ? "bg-success" : "bg-secondary") fs-6">@(Model.Ativo ? "Ativo" : "Inativo")</span>
+        </div>
+
+        <div class="row g-3">
+            <!-- 1. Nome Completo -->
+            <div class="col-md-6"><strong>Nome Completo:</strong> @Model.Nome</div>
+
+            <!-- 2. Data de nascimento -->
+            <div class="col-md-3"><strong>Data de nascimento:</strong> @(Model.DataNascimento == DateTime.MinValue ? "Não informada" : Model.DataNascimento.ToString("dd/MM/yyyy"))</div>
+
+            <!-- 3. CPF -->
+            <div class="col-md-3"><strong>CPF:</strong> @Model.CPF</div>
+
+            <!-- 4. Nome do pai -->
+            <div class="col-md-6"><strong>Nome do pai:</strong> @(string.IsNullOrWhiteSpace(Model.NomePai) ? "Não informado" : Model.NomePai)</div>
+
+            <!-- 5. Nome da mãe -->
+            <div class="col-md-6"><strong>Nome da mãe:</strong> @(string.IsNullOrWhiteSpace(Model.NomeMae) ? "Não informado" : Model.NomeMae)</div>
+
+            <!-- 6. Naturalidade -->
+            <div class="col-md-4"><strong>Naturalidade:</strong> @(string.IsNullOrWhiteSpace(Model.Naturalidade) ? "Não informada" : Model.Naturalidade)</div>
+
+            <!-- 7. Escolaridade -->
+            <div class="col-md-4"><strong>Escolaridade:</strong> @(string.IsNullOrWhiteSpace(Model.Escolaridade) ? "Não informada" : Model.Escolaridade)</div>
+
+            <!-- 8. Nacionalidade -->
+            <div class="col-md-4"><strong>Nacionalidade:</strong> @(string.IsNullOrWhiteSpace(Model.Nacionalidade) ? "Não informada" : Model.Nacionalidade)</div>
+
+            <!-- 9. Sexo -->
+            <div class="col-md-3"><strong>Sexo:</strong> @(string.IsNullOrWhiteSpace(Model.Sexo) ? "Não informado" : Model.Sexo)</div>
+
+            <!-- 10. Número da identidade -->
+            <div class="col-md-3"><strong>Número da identidade:</strong> @(string.IsNullOrWhiteSpace(Model.NumeroIdentidade) ? "Não informada" : Model.NumeroIdentidade)</div>
+
+            <!-- 11. Órgão emissor da identidade -->
+            <div class="col-md-3"><strong>Órgão emissor da identidade:</strong> @(string.IsNullOrWhiteSpace(Model.OrgaoEmissorIdentidade) ? "Não informado" : Model.OrgaoEmissorIdentidade)</div>
+
+            <!-- 12. Certificado de reservista -->
+            <div class="col-md-3"><strong>Certificado de reservista:</strong> @(string.IsNullOrWhiteSpace(Model.CertificadoReservista) ? "Não informado" : Model.CertificadoReservista)</div>
+
+            <!-- 13. Número do PIS -->
+            <div class="col-md-3"><strong>Número do PIS:</strong> @(string.IsNullOrWhiteSpace(Model.NumeroPis) ? "Não informado" : Model.NumeroPis)</div>
+
+            <!-- 14. Título de eleitor -->
+            <div class="col-md-3"><strong>Título de eleitor:</strong> @(string.IsNullOrWhiteSpace(Model.TituloEleitor) ? "Não informado" : Model.TituloEleitor)</div>
+
+            <!-- 15. Zona eleitoral -->
+            <div class="col-md-3"><strong>Zona eleitoral:</strong> @(string.IsNullOrWhiteSpace(Model.ZonaEleitoral) ? "Não informada" : Model.ZonaEleitoral)</div>
+
+            <!-- 16. Seção eleitoral -->
+            <div class="col-md-3"><strong>Seção eleitoral:</strong> @(string.IsNullOrWhiteSpace(Model.SecaoEleitoral) ? "Não informada" : Model.SecaoEleitoral)</div>
+
+            <!-- 17. Número de dependentes -->
+            <div class="col-md-3"><strong>Número de dependentes:</strong> @(Model.NumeroDependentes?.ToString() ?? "Não informado")</div>
+
+            <!-- 18. Estado civil -->
+            <div class="col-md-3"><strong>Estado civil:</strong> @(string.IsNullOrWhiteSpace(Model.EstadoCivil) ? "Não informado" : Model.EstadoCivil)</div>
+
+            <!-- 19. Nome do cônjuge -->
+            <div class="col-md-3"><strong>Nome do cônjuge:</strong> @(string.IsNullOrWhiteSpace(Model.NomeConjuge) ? "Não informado" : Model.NomeConjuge)</div>
+
+            <!-- 20. Regime de casamento -->
+            <div class="col-md-3"><strong>Regime de casamento:</strong> @(string.IsNullOrWhiteSpace(Model.RegimeCasamento) ? "Não informado" : Model.RegimeCasamento)</div>
+
+            <!-- 21. Banco -->
+            <div class="col-md-3"><strong>Banco:</strong> @(string.IsNullOrWhiteSpace(Model.Banco) ? "Não informado" : Model.Banco)</div>
+
+            <!-- 22. Agência -->
+            <div class="col-md-3"><strong>Agência:</strong> @(string.IsNullOrWhiteSpace(Model.Agencia) ? "Não informada" : Model.Agencia)</div>
+
+            <!-- 23. Conta corrente -->
+            <div class="col-md-3"><strong>Conta corrente:</strong> @(string.IsNullOrWhiteSpace(Model.ContaCorrente) ? "Não informada" : Model.ContaCorrente)</div>
+
+            <!-- 24. Chave PIX -->
+            <div class="col-md-3"><strong>Chave PIX:</strong> @(string.IsNullOrWhiteSpace(Model.ChavePix) ? "Não informada" : Model.ChavePix)</div>
+
+            <!-- 25. Email -->
+            <div class="col-md-6"><strong>Email:</strong> @Model.Email</div>
+
+            <!-- 26. Telefone -->
+            <div class="col-md-6"><strong>Telefone:</strong> @Model.Telefone</div>
+
+            <!-- 27. Logradouro -->
+            <div class="col-md-9"><strong>Logradouro:</strong> @Model.Logradouro</div>
+
+            <!-- 28. Bairro -->
+            <div class="col-md-4"><strong>Bairro:</strong> @(string.IsNullOrWhiteSpace(Model.Bairro) ? "Não informado" : Model.Bairro)</div>
+
+            <!-- 29. Cidade -->
+            <div class="col-md-5"><strong>Cidade:</strong> @(string.IsNullOrWhiteSpace(Model.Cidade) ? "Não informada" : Model.Cidade)</div>
+
+            <!-- 30. UF -->
+            <div class="col-md-3"><strong>UF:</strong> @(string.IsNullOrWhiteSpace(Model.Uf) ? "Não informada" : Model.Uf)</div>
+
+            <!-- 31. CEP -->
+            <div class="col-md-4"><strong>CEP:</strong> @(string.IsNullOrWhiteSpace(Model.CEP) ? "Não informado" : Model.CEP)</div>
+
+            <!-- 32. Data de admissão -->
+            <div class="col-md-4"><strong>Data de admissão:</strong> @(Model.DataAdmissao == default ? "Não informada" : Model.DataAdmissao.ToString("dd/MM/yyyy"))</div>
+
+            <!-- 32. Declara imposto de renda -->
+            <div class="col-md-4"><strong>Declara imposto de renda:</strong> @(Model.DeclaraImpostoRenda ? "Sim" : "Não")</div>
+        </div>
+
+        @if (!ehCooperado)
+        {
+            <div class="mt-4 d-flex gap-2">
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Editar</a>
+                <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">Excluir</a>
+            </div>
+        }
+    </div>
+</div>

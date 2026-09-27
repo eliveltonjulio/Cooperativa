@@ -1,0 +1,52 @@
+@model Cooperativa.Models.FolhaPagamento
+
+@{
+    ViewData["Title"] = "Editar folha";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-1">Editar folha</h2>
+        <p class="text-muted mb-0">Ajuste os valores e a competência da folha.</p>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary">Voltar</a>
+</div>
+
+<form asp-action="Edit" method="post" class="card border-0 shadow-sm p-4">
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+    <input type="hidden" asp-for="Id" />
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label">Cooperado</label>
+            <select asp-for="CooperadoId" class="form-select" required>
+                <option value="">Selecione...</option>
+                @foreach (var cooperado in ViewBag.Cooperados as IEnumerable<Cooperativa.Models.Cooperado>)
+                {
+                    <option value="@cooperado.Id">@cooperado.Nome</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Competencia" class="form-label"></label>
+            <input asp-for="Competencia" class="form-control" type="month" />
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Salario" class="form-label"></label>
+            <input asp-for="Salario" class="form-control" type="number" step="0.01" />
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Adicional" class="form-label"></label>
+            <input asp-for="Adicional" class="form-control" type="number" step="0.01" />
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Descontos" class="form-label"></label>
+            <input asp-for="Descontos" class="form-control" type="number" step="0.01" />
+        </div>
+    </div>
+
+    <div class="mt-4 d-flex gap-2">
+        <button type="submit" class="btn btn-warning">Salvar alterações</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+    </div>
+</form>

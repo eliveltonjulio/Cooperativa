@@ -1,0 +1,174 @@
+@model Cooperativa.Models.Contrato
+@{
+    ViewData["Title"] = "Editar contrato";
+    var ufs = new[] { "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO" };
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-1">Editar contrato</h2>
+        <p class="text-muted mb-0">Atualize os dados do contrato e da empresa contratante.</p>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary">Voltar</a>
+</div>
+
+<form asp-action="Edit" asp-route-id="@Model.Id" method="post" class="card border-0 shadow-sm p-4">
+    <input type="hidden" asp-for="Id" />
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+    <h5 class="text-muted mb-3"><i class="bi bi-buildings me-2"></i>Dados da empresa</h5>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label asp-for="EmpresaNome" class="form-label"></label>
+            <input asp-for="EmpresaNome" class="form-control" placeholder="Razão social / nome da empresa" />
+            <span asp-validation-for="EmpresaNome" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Cnpj" class="form-label"></label>
+            <input asp-for="Cnpj" id="Cnpj" class="form-control" placeholder="00.000.000/0000-00" maxlength="18" />
+            <div class="form-text">Aceita CNPJ alfanumérico: letras e números nos 12 primeiros caracteres; os 2 dígitos verificadores devem ser números.</div>
+            <span asp-validation-for="Cnpj" class="text-danger"></span>
+        </div>
+    </div>
+
+    <h5 class="text-muted mt-4 mb-3"><i class="bi bi-calendar-range me-2"></i>Vigência e valor</h5>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label asp-for="DataInicio" class="form-label"></label>
+            <input asp-for="DataInicio" class="form-control" type="date" />
+            <span asp-validation-for="DataInicio" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="DataFim" class="form-label"></label>
+            <input asp-for="DataFim" class="form-control" type="date" />
+            <div class="form-text">Opcional: deixe em branco para contrato sem data de término.</div>
+            <span asp-validation-for="DataFim" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="ValorContrato" class="form-label"></label>
+            <input asp-for="ValorContrato" class="form-control" type="number" step="0.01" />
+            <span asp-validation-for="ValorContrato" class="text-danger"></span>
+        </div>
+    </div>
+
+    <h5 class="text-muted mt-4 mb-3"><i class="bi bi-geo-alt me-2"></i>Endereço</h5>
+    <div class="row g-3">
+        <div class="col-md-8">
+            <label asp-for="Logradouro" class="form-label"></label>
+            <input asp-for="Logradouro" class="form-control" placeholder="Rua, avenida, número, complemento" />
+            <span asp-validation-for="Logradouro" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Cep" class="form-label"></label>
+            <input asp-for="Cep" id="Cep" class="form-control" placeholder="00000-000" />
+            <span asp-validation-for="Cep" class="text-danger"></span>
+        </div>
+        <div class="col-md-5">
+            <label asp-for="Bairro" class="form-label"></label>
+            <input asp-for="Bairro" class="form-control" />
+            <span asp-validation-for="Bairro" class="text-danger"></span>
+        </div>
+        <div class="col-md-5">
+            <label asp-for="Cidade" class="form-label"></label>
+            <input asp-for="Cidade" class="form-control" />
+            <span asp-validation-for="Cidade" class="text-danger"></span>
+        </div>
+        <div class="col-md-2">
+            <label asp-for="Uf" class="form-label"></label>
+            <select asp-for="Uf" class="form-select">
+                <option value="">Selecione</option>
+                @foreach (var uf in ufs)
+                {
+                    <option value="@uf">@uf</option>
+                }
+            </select>
+            <span asp-validation-for="Uf" class="text-danger"></span>
+        </div>
+    </div>
+
+    <h5 class="text-muted mt-4 mb-3"><i class="bi bi-person-lines-fill me-2"></i>Contatos (opcionais)</h5>
+    <p class="text-muted small mb-3">Informe os contatos apenas quando existirem; deixe em branco para não cadastrar.</p>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label asp-for="Contato1Nome" class="form-label"></label>
+            <input asp-for="Contato1Nome" class="form-control" />
+            <span asp-validation-for="Contato1Nome" class="text-danger"></span>
+        </div>
+        <div class="col-md-2">
+            <label asp-for="Contato1Telefone" class="form-label"></label>
+            <input asp-for="Contato1Telefone" id="Contato1Telefone" class="form-control" placeholder="(00) 00000-0000" />
+            <span asp-validation-for="Contato1Telefone" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Contato2Nome" class="form-label"></label>
+            <input asp-for="Contato2Nome" class="form-control" />
+            <span asp-validation-for="Contato2Nome" class="text-danger"></span>
+        </div>
+        <div class="col-md-2">
+            <label asp-for="Contato2Telefone" class="form-label"></label>
+            <input asp-for="Contato2Telefone" id="Contato2Telefone" class="form-control" placeholder="(00) 00000-0000" />
+            <span asp-validation-for="Contato2Telefone" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mt-4 d-flex gap-2">
+        <button type="submit" class="btn btn-success">Salvar</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const apenasDigitos = (valor) => valor.replace(/\D/g, '');
+        const apenasAlfanumericos = (valor) => valor.replace(/[^0-9A-Za-z]/g, '').toUpperCase();
+
+        // CNPJ alfanumérico: 12 caracteres (letras e números) + 2 dígitos verificadores numéricos.
+        const formatarCnpj = (valor) => {
+            let limpo = apenasAlfanumericos(valor).slice(0, 14);
+            if (limpo.length > 12) {
+                limpo = limpo.slice(0, 12) + limpo.slice(12).replace(/\D/g, '');
+            }
+
+            let formatado = limpo.slice(0, 2);
+            if (limpo.length > 2) formatado += '.' + limpo.slice(2, 5);
+            if (limpo.length > 5) formatado += '.' + limpo.slice(5, 8);
+            if (limpo.length > 8) formatado += '/' + limpo.slice(8, 12);
+            if (limpo.length > 12) formatado += '-' + limpo.slice(12, 14);
+            return formatado;
+        };
+
+        const formatarCep = (valor) => {
+            valor = apenasDigitos(valor).slice(0, 8);
+            return valor.length > 5 ? `${valor.slice(0, 5)}-${valor.slice(5)}` : valor;
+        };
+
+        const formatarTelefone = (valor) => {
+            valor = apenasDigitos(valor).slice(0, 11);
+            if (valor.length === 0) return '';
+            if (valor.length <= 2) return `(${valor}`;
+            const ddd = `(${valor.slice(0, 2)}) `;
+            const numero = valor.slice(2);
+            if (numero.length > 8) return `${ddd}${numero.slice(0, 5)}-${numero.slice(5)}`;
+            if (numero.length > 4) return `${ddd}${numero.slice(0, 4)}-${numero.slice(4)}`;
+            return `${ddd}${numero}`;
+        };
+
+        const aplicarMascaras = () => {
+            const campos = [
+                { id: 'Cnpj', formatador: formatarCnpj },
+                { id: 'Cep', formatador: formatarCep },
+                { id: 'Contato1Telefone', formatador: formatarTelefone },
+                { id: 'Contato2Telefone', formatador: formatarTelefone }
+            ];
+
+            campos.forEach(({ id, formatador }) => {
+                const campo = document.getElementById(id);
+                if (!campo) return;
+                campo.addEventListener('input', () => { campo.value = formatador(campo.value); });
+            });
+        };
+
+        aplicarMascaras();
+    </script>
+}

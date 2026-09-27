@@ -1,0 +1,274 @@
+﻿@{
+    ViewData["Title"] = "Página Principal";
+    var ehAdmin = User.IsInRole("Administrador") || User.IsInRole("Admin") || !User.Identity?.IsAuthenticated == true;
+    var ehCoordenador = User.IsInRole("Coordenador") || User.IsInRole("Gestor");
+    var ehCooperado = User.IsInRole("Cooperado") || User.IsInRole("Operacional");
+    var cooperadoIdClaim = User.FindFirst("CooperadoId")?.Value;
+}
+
+<div class="mb-4">
+    <h2 class="fw-bold mb-1">Página Principal</h2>
+    <p class="text-muted mb-0">Selecione uma das opções abaixo para navegar pelas áreas do sistema conforme seu perfil de acesso.</p>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Cooperados / Meu Cadastro -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm hover-shadow transition">
+            <div class="card-body p-4 d-flex flex-column">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="rounded-3 bg-primary bg-opacity-10 text-primary p-3 fs-3">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                    <div>
+                        <h5 class="card-title fw-bold mb-0">@(ehCooperado && !ehAdmin && !ehCoordenador ? "Meu Cadastro" : "Cooperados")</h5>
+                        <small class="text-muted">@(ehCooperado && !ehAdmin && !ehCoordenador ? "Dados pessoais e funcionais" : "Cadastro e gestão de cooperados")</small>
+                    </div>
+                </div>
+                <p class="card-text text-muted small flex-grow-1">
+                    @(ehCooperado && !ehAdmin && !ehCoordenador 
+                        ? "Consulte e acompanhe seus dados cadastrais, informações funcionais, cargo e contrato vinculado."
+                        : "Consulte, cadastre, edite e acompanhe os dados pessoais, funcionais e de contato dos cooperados.")
+                </p>
+                <div class="d-flex gap-2 mt-3">
+                    @if (ehCooperado && !ehAdmin && !ehCoordenador && !string.IsNullOrWhiteSpace(cooperadoIdClaim))
+                    {
+                        <a asp-controller="Cooperados" asp-action="Details" asp-route-id="@cooperadoIdClaim" class="btn btn-primary btn-sm flex-grow-1">
+                            <i class="bi bi-arrow-right-circle me-1"></i>Acessar Meu Cadastro
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Cooperados" asp-action="Index" class="btn btn-primary btn-sm flex-grow-1">
+                            <i class="bi bi-arrow-right-circle me-1"></i>Acessar Cooperados
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contratos -->
+    @if (ehAdmin || ehCoordenador)
+    {
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm hover-shadow transition">
+                <div class="card-body p-4 d-flex flex-column">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="rounded-3 bg-info bg-opacity-10 text-info p-3 fs-3">
+                            <i class="bi bi-file-earmark-text"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title fw-bold mb-0">Contratos</h5>
+                            <small class="text-muted">Empresas contratantes</small>
+                        </div>
+                    </div>
+                    <p class="card-text text-muted small flex-grow-1">
+                        Cadastre contratos digitando os dados da empresa contratante: nome, CNPJ, vigência, endereço e contatos.
+                    </p>
+                    <div class="d-flex gap-2 mt-3">
+                        <a asp-controller="Contratos" asp-action="Index" class="btn btn-info btn-sm text-white flex-grow-1">
+                            <i class="bi bi-arrow-right-circle me-1"></i>Acessar Contratos
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Funções -->
+    @if (ehAdmin || ehCoordenador)
+    {
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm hover-shadow transition">
+                <div class="card-body p-4 d-flex flex-column">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="rounded-3 bg-info bg-opacity-10 text-info p-3 fs-3">
+                            <i class="bi bi-person-badge"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title fw-bold mb-0">Funções</h5>
+                            <small class="text-muted">Cargos e funções</small>
+                        </div>
+                    </div>
+                    <p class="card-text text-muted small flex-grow-1">
+                        Definição de cargos, funções e qualificações desempenhadas pelos cooperados.
+                    </p>
+                    <div class="d-flex gap-2 mt-3">
+                        <a asp-controller="Funcoes" asp-action="Index" class="btn btn-info btn-sm text-white flex-grow-1">
+                            <i class="bi bi-arrow-right-circle me-1"></i>Acessar Funções
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Remunerações -->
+    @if (ehAdmin || ehCoordenador)
+    {
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm hover-shadow transition">
+                <div class="card-body p-4 d-flex flex-column">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="rounded-3 bg-success bg-opacity-10 text-success p-3 fs-3">
+                            <i class="bi bi-wallet2"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title fw-bold mb-0">Remunerações</h5>
+                            <small class="text-muted">Tabela de valores base</small>
+                        </div>
+                    </div>
+                    <p class="card-text text-muted small flex-grow-1">
+                        Gerencie valores pagos por dia, hora ou mês de acordo com a função e o contrato.
+                    </p>
+                    <div class="d-flex gap-2 mt-3">
+                        <a asp-controller="Remuneracoes" asp-action="Index" class="btn btn-success btn-sm text-white flex-grow-1">
+                            <i class="bi bi-arrow-right-circle me-1"></i>Acessar Remunerações
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Jornada contratual -->
+    @if (ehAdmin || ehCoordenador)
+    {
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm hover-shadow transition">
+                <div class="card-body p-4 d-flex flex-column">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="rounded-3 bg-secondary bg-opacity-10 text-secondary p-3 fs-3">
+                            <i class="bi bi-calendar2-week"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title fw-bold mb-0">Jornada Contratual</h5>
+                            <small class="text-muted">Horários e dias trabalhados</small>
+                        </div>
+                    </div>
+                    <p class="card-text text-muted small flex-grow-1">
+                        Defina o horário de início, fim, intervalo e os dias da semana da carga horária contratada por função em cada contrato.
+                    </p>
+                    <div class="d-flex gap-2 mt-3">
+                        <a asp-controller="JornadasContratuais" asp-action="Index" class="btn btn-secondary btn-sm text-white flex-grow-1">
+                            <i class="bi bi-arrow-right-circle me-1"></i>Acessar Jornadas Contratuais
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Alocações -->
+    @if (ehAdmin || ehCoordenador)
+    {
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm hover-shadow transition">
+                <div class="card-body p-4 d-flex flex-column">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="rounded-3 bg-success bg-opacity-10 text-success p-3 fs-3">
+                            <i class="bi bi-diagram-3"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title fw-bold mb-0">Alocações</h5>
+                            <small class="text-muted">Alocação de cooperados</small>
+                        </div>
+                    </div>
+                    <p class="card-text text-muted small flex-grow-1">
+                        Vincule cooperados aos contratos, definindo funções e períodos de trabalho.
+                    </p>
+                    <div class="d-flex gap-2 mt-3">
+                        <a asp-controller="Alocacoes" asp-action="Index" class="btn btn-success btn-sm text-white flex-grow-1">
+                            <i class="bi bi-arrow-right-circle me-1"></i>Acessar Alocações
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Ponto / Meu Registro de Ponto -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm hover-shadow transition">
+            <div class="card-body p-4 d-flex flex-column">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="rounded-3 bg-success bg-opacity-10 text-success p-3 fs-3">
+                        <i class="bi bi-clock-history"></i>
+                    </div>
+                    <div>
+                        <h5 class="card-title fw-bold mb-0">@(ehCooperado && !ehAdmin && !ehCoordenador ? "Meu Registro de Ponto" : "Ponto")</h5>
+                        <small class="text-muted">Registros de frequência</small>
+                    </div>
+                </div>
+                <p class="card-text text-muted small flex-grow-1">
+                    @(ehCooperado && !ehAdmin && !ehCoordenador
+                        ? "Consulte seu histórico de entradas, intervalos e saídas registradas no sistema."
+                        : "Gerencie os registros diários de entrada, intervalos e saídas dos cooperados com filtros por contrato e período.")
+                </p>
+                <div class="d-flex gap-2 mt-3">
+                    <a asp-controller="Ponto" asp-action="Index" class="btn btn-success btn-sm flex-grow-1">
+                        <i class="bi bi-arrow-right-circle me-1"></i>Acessar Ponto
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gestão -->
+    @if (ehAdmin || ehCoordenador)
+    {
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm border-start border-4 border-warning hover-shadow transition">
+                <div class="card-body p-4 d-flex flex-column">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="rounded-3 bg-warning bg-opacity-10 text-warning p-3 fs-3">
+                            <i class="bi bi-briefcase-fill"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title fw-bold mb-0">Gestão</h5>
+                            <small class="text-muted">Operações e apurações</small>
+                        </div>
+                    </div>
+                    <p class="card-text text-muted small flex-grow-1">
+                        Usuários, Apuração mensal de ponto e Folha de pagamento.
+                    </p>
+                    <div class="d-flex gap-2 mt-3">
+                        <a asp-controller="Home" asp-action="Gestao" class="btn btn-warning btn-sm text-dark fw-semibold flex-grow-1">
+                            <i class="bi bi-arrow-right-circle me-1"></i>Ir para Gestão
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Parametrização -->
+    @if (ehAdmin)
+    {
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm border-start border-4 border-danger hover-shadow transition">
+                <div class="card-body p-4 d-flex flex-column">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="rounded-3 bg-danger bg-opacity-10 text-danger p-3 fs-3">
+                            <i class="bi bi-sliders"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title fw-bold mb-0">Parametrização</h5>
+                            <small class="text-muted">Configurações do sistema</small>
+                        </div>
+                    </div>
+                    <p class="card-text text-muted small flex-grow-1">
+                        Despesas da folha, Tipos de adicional, Adicionais por contrato/função, Regras de hora extra, Hora noturna e Feriados.
+                    </p>
+                    <div class="d-flex gap-2 mt-3">
+                        <a asp-controller="Home" asp-action="Parametrizacao" class="btn btn-danger btn-sm text-white fw-semibold flex-grow-1">
+                            <i class="bi bi-arrow-right-circle me-1"></i>Ir para Parametrização
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+

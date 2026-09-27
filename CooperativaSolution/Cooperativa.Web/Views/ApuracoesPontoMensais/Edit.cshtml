@@ -1,0 +1,37 @@
+@model Cooperativa.Models.ApuracaoPontoMensal
+@{ ViewData["Title"] = "Editar apuração mensal"; }
+<div class="d-flex justify-content-between align-items-center mb-3"><div><h2 class="mb-1">Editar apuração mensal</h2><p class="text-muted mb-0">Atualize os totalizadores do cooperado.</p></div><div class="d-flex gap-2"><button type="button" id="btnRecalcular" class="btn btn-outline-primary"><i class="bi bi-arrow-repeat me-1"></i>Recalcular do ponto</button><a asp-action="Index" class="btn btn-outline-secondary">Voltar</a></div></div>
+<form asp-action="Edit" asp-route-cooperadoIdOriginal="@Model.CooperadoId" asp-route-mesAnoOriginal="@Model.MesAno.ToString("yyyy-MM-dd")" method="post" class="card border-0 shadow-sm p-4"><div asp-validation-summary="All" class="alert alert-danger"></div><div class="row g-3"><div class="col-md-6"><label asp-for="CooperadoId" class="form-label">Cooperado</label><select asp-for="CooperadoId" class="form-select">@foreach (var cooperado in (IEnumerable<Cooperativa.Models.Cooperado>)ViewBag.Cooperados){<option value="@cooperado.Id">@cooperado.Nome</option>}</select></div><div class="col-md-6"><label asp-for="MesAno" class="form-label"></label><input asp-for="MesAno" class="form-control" type="month" /></div><div class="col-md-4"><label asp-for="QtdHorasNormais" class="form-label"></label><input asp-for="QtdHorasNormais" class="form-control" type="number" step="0.01" min="0" /></div><div class="col-md-4"><label asp-for="QtdHorasExtras" class="form-label"></label><input asp-for="QtdHorasExtras" class="form-control" type="number" step="0.01" min="0" /></div><div class="col-md-4"><label asp-for="QtdHorasNoturnas" class="form-label"></label><input asp-for="QtdHorasNoturnas" class="form-control" type="number" step="0.01" min="0" /></div></div><div class="mt-4 d-flex gap-2"><button type="submit" class="btn btn-success">Salvar</button><a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a></div></form>
+
+@section Scripts {
+	<script>
+		const cooperado = document.getElementById('CooperadoId');
+		const mesAno = document.getElementById('MesAno');
+		const horasNormais = document.getElementById('QtdHorasNormais');
+		const horasExtras = document.getElementById('QtdHorasExtras');
+		const horasNoturnas = document.getElementById('QtdHorasNoturnas');
+		const btnRecalcular = document.getElementById('btnRecalcular');
+		let consultaAtual;
+
+		async function preencherTotais() {
+			consultaAtual?.abort();
+
+			if (!cooperado.value || !mesAno.value) {
+				return;
+			}
+
+			consultaAtual = new AbortController();
+			const resposta = await fetch(`@Url.Action("Totais")?cooperadoId=${encodeURIComponent(cooperado.value)}&mesAno=${encodeURIComponent(mesAno.value)}-01`, { signal: consultaAtual.signal });
+			if (!resposta.ok) return;
+
+			const totais = await resposta.json();
+			horasNormais.value = totais.horasNormais.toFixed(2);
+			horasExtras.value = totais.horasExtras.toFixed(2);
+			horasNoturnas.value = totais.horasNoturnas.toFixed(2);
+		}
+
+		btnRecalcular?.addEventListener('click', () => preencherTotais().catch(() => {}));
+		cooperado.addEventListener('change', () => preencherTotais().catch(() => {}));
+		mesAno.addEventListener('change', () => preencherTotais().catch(() => {}));
+	</script>
+}

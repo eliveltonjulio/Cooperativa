@@ -1,0 +1,23 @@
+@model IEnumerable<Cooperativa.Models.Feriado>
+@{ ViewData["Title"] = "Feriados"; }
+<div class="d-flex justify-content-between align-items-center mb-3"><div><h2 class="mb-1">Feriados</h2><p class="text-muted mb-0">Cadastre os feriados usados no cálculo de horas extras.</p></div><div class="d-flex gap-2"><form asp-action="IncluirNacionaisPermanentes" method="post" class="d-flex gap-2"><input type="number" name="ano" value="@DateTime.UtcNow.Year" min="1900" max="9999" class="form-control" style="width: 100px;" aria-label="Ano dos feriados nacionais" /><button type="submit" class="btn btn-outline-primary">Incluir nacionais</button></form><a asp-action="Create" class="btn btn-primary">Novo feriado</a></div></div>
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-5"><input name="busca" value="@ViewBag.Busca" class="form-control" placeholder="Buscar por descrição" /></div>
+    <div class="col-md-3"><select name="tipo" class="form-select"><option value="todos" selected="@(ViewBag.Tipo == null || ViewBag.Tipo == "todos")">Todos os tipos</option><option value="NACIONAL" selected="@(ViewBag.Tipo == "NACIONAL")">Nacional</option><option value="ESTADUAL" selected="@(ViewBag.Tipo == "ESTADUAL")">Estadual</option><option value="MUNICIPAL" selected="@(ViewBag.Tipo == "MUNICIPAL")">Municipal</option></select></div>
+    <div class="col-md-2"><button class="btn btn-outline-secondary w-100">Filtrar</button></div>
+    <div class="col-md-2"><a asp-action="Index" class="btn btn-outline-light text-dark w-100">Limpar</a></div>
+</form>
+<table class="table table-striped">
+    <thead><tr><th>Data</th><th>Descrição</th><th>Tipo</th><th>Ações</th></tr></thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Data.ToString("dd/MM/yyyy")</td>
+            <td>@item.Descricao</td>
+            <td>@item.Tipo</td>
+            <td><a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">Detalhes</a> <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning">Editar</a> <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">Excluir</a></td>
+        </tr>
+    }
+    </tbody>
+</table>

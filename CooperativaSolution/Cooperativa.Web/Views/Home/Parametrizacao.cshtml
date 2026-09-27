@@ -1,0 +1,164 @@
+@{
+    ViewData["Title"] = "Parametrização";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="bi bi-sliders text-danger me-2"></i>Parametrização</h2>
+        <p class="text-muted mb-0">Tabelas de apoio, regras de horas extras, adicionais, feriados e parâmetros de cálculo.</p>
+    </div>
+    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Voltar para a Página Inicial
+    </a>
+</div>
+
+<div class="row g-4">
+    <!-- Despesas da folha -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body p-4 d-flex flex-column">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="rounded-3 bg-danger bg-opacity-10 text-danger p-3 fs-3">
+                        <i class="bi bi-receipt"></i>
+                    </div>
+                    <div>
+                        <h5 class="card-title fw-bold mb-0">Despesas da Folha</h5>
+                        <small class="text-muted">Retenções e encargos</small>
+                    </div>
+                </div>
+                <p class="card-text text-muted small flex-grow-1">
+                    Configure os tipos de desconto, taxas administrativas e retenções aplicadas sobre a folha.
+                </p>
+                <div class="d-flex gap-2 mt-3">
+                    <a asp-controller="DespesasFolha" asp-action="Index" class="btn btn-outline-danger btn-sm flex-grow-1">
+                        <i class="bi bi-arrow-right-circle me-1"></i>Acessar Despesas da Folha
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tipos de adicional -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body p-4 d-flex flex-column">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="rounded-3 bg-primary bg-opacity-10 text-primary p-3 fs-3">
+                        <i class="bi bi-plus-circle"></i>
+                    </div>
+                    <div>
+                        <h5 class="card-title fw-bold mb-0">Tipos de Adicional</h5>
+                        <small class="text-muted">Insalubridade, periculosidade, etc.</small>
+                    </div>
+                </div>
+                <p class="card-text text-muted small flex-grow-1">
+                    Cadastre percentuais ou valores fixos de adicionais praticados pela cooperativa.
+                </p>
+                <div class="d-flex gap-2 mt-3">
+                    <a asp-controller="TiposAdicionais" asp-action="Index" class="btn btn-outline-primary btn-sm flex-grow-1">
+                        <i class="bi bi-arrow-right-circle me-1"></i>Acessar Tipos de Adicional
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Adicionais por contrato e função -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body p-4 d-flex flex-column">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="rounded-3 bg-info bg-opacity-10 text-info p-3 fs-3">
+                        <i class="bi bi-link-45deg"></i>
+                    </div>
+                    <div>
+                        <h5 class="card-title fw-bold mb-0">Adicionais por Contrato e Função</h5>
+                        <small class="text-muted">Vínculo de benefícios</small>
+                    </div>
+                </div>
+                <p class="card-text text-muted small flex-grow-1">
+                    Defina quais adicionais incidem sobre cada função nos contratos cadastrados.
+                </p>
+                <div class="d-flex gap-2 mt-3">
+                    <a asp-controller="ContratoFuncaoAdicionais" asp-action="Index" class="btn btn-outline-info btn-sm flex-grow-1">
+                        <i class="bi bi-arrow-right-circle me-1"></i>Acessar Adicionais por Contrato/Função
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Regras de hora extra -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body p-4 d-flex flex-column">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="rounded-3 bg-warning bg-opacity-10 text-warning p-3 fs-3">
+                        <i class="bi bi-clock-history"></i>
+                    </div>
+                    <div>
+                        <h5 class="card-title fw-bold mb-0">Regras de Hora Extra</h5>
+                        <small class="text-muted">Percentuais de HE</small>
+                    </div>
+                </div>
+                <p class="card-text text-muted small flex-grow-1">
+                    Parametrize percentuais de hora extra padrão e especiais (domingos e feriados) por contrato.
+                </p>
+                <div class="d-flex gap-2 mt-3">
+                    <a asp-controller="RegrasHoraExtra" asp-action="Index" class="btn btn-outline-warning text-dark btn-sm flex-grow-1">
+                        <i class="bi bi-arrow-right-circle me-1"></i>Acessar Regras de Hora Extra
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Configuração de hora noturna -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body p-4 d-flex flex-column">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="rounded-3 bg-dark bg-opacity-10 text-dark p-3 fs-3">
+                        <i class="bi bi-moon-stars"></i>
+                    </div>
+                    <div>
+                        <h5 class="card-title fw-bold mb-0">Configuração de Hora Noturna</h5>
+                        <small class="text-muted">Horários e fator reduzido</small>
+                    </div>
+                </div>
+                <p class="card-text text-muted small flex-grow-1">
+                    Estabeleça a faixa horária noturna (início e fim) e se haverá aplicação da hora reduzida (52m30s).
+                </p>
+                <div class="d-flex gap-2 mt-3">
+                    <a asp-controller="ConfiguracaoHoraNoturna" asp-action="Index" class="btn btn-outline-dark btn-sm flex-grow-1">
+                        <i class="bi bi-arrow-right-circle me-1"></i>Acessar Configuração de Hora Noturna
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Feriados -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body p-4 d-flex flex-column">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="rounded-3 bg-primary bg-opacity-10 text-primary p-3 fs-3">
+                        <i class="bi bi-calendar-event"></i>
+                    </div>
+                    <div>
+                        <h5 class="card-title fw-bold mb-0">Feriados</h5>
+                        <small class="text-muted">Calendário de feriados</small>
+                    </div>
+                </div>
+                <p class="card-text text-muted small flex-grow-1">
+                    Cadastre feriados nacionais, estaduais e municipais para cômputo correto de horas extras na apuração.
+                </p>
+                <div class="d-flex gap-2 mt-3">
+                    <a asp-controller="Feriados" asp-action="Index" class="btn btn-outline-primary btn-sm flex-grow-1">
+                        <i class="bi bi-arrow-right-circle me-1"></i>Acessar Feriados
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

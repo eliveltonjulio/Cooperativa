@@ -1,0 +1,12 @@
+@model Cooperativa.Models.Feriado
+@{ ViewData["Title"] = "Novo feriado"; }
+<div class="d-flex justify-content-between align-items-center mb-3"><div><h2 class="mb-1">Novo feriado</h2><p class="text-muted mb-0">Cadastre uma data de feriado.</p></div><a asp-action="Index" class="btn btn-outline-secondary">Voltar</a></div>
+<form asp-action="Create" method="post" class="card border-0 shadow-sm p-4">
+    <div asp-validation-summary="All" class="alert alert-danger"></div>
+    <div class="row g-3">
+        <div class="col-md-4"><label asp-for="Data" class="form-label"></label><input asp-for="Data" class="form-control" type="date" /></div>
+        <div class="col-md-4"><label asp-for="Descricao" class="form-label"></label><input asp-for="Descricao" class="form-control" /></div>
+        <div class="col-md-4"><label asp-for="Tipo" class="form-label"></label><select asp-for="Tipo" class="form-select"><option value="NACIONAL">Nacional</option><option value="ESTADUAL">Estadual</option><option value="MUNICIPAL">Municipal</option></select></div>
+    </div>
+    <div class="mt-4 d-flex gap-2"><button type="submit" class="btn btn-success">Salvar</button><a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a></div>
+</form>

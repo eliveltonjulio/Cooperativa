@@ -1,0 +1,359 @@
+@model Cooperativa.Models.Cooperado
+
+@{
+    ViewData["Title"] = "Cadastrar cooperado";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-1">Cadastrar cooperado</h2>
+        <p class="text-muted mb-0">Preencha os dados do associado.</p>
+    </div>
+    <button type="button" onclick="history.back()" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Voltar
+    </button>
+</div>
+
+<form asp-controller="Cooperados" asp-action="Create" method="post" class="card border-0 shadow-sm p-4">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+    <div class="row g-3">
+        <!-- 1. Nome Completo -->
+        <div class="col-md-6">
+            <label asp-for="Nome" class="form-label fw-semibold">Nome Completo</label>
+            <input asp-for="Nome" class="form-control" placeholder="Nome completo do cooperado" required />
+            <span asp-validation-for="Nome" class="text-danger small"></span>
+        </div>
+
+        <!-- 2. Data de nascimento -->
+        <div class="col-md-3">
+            <label asp-for="DataNascimento" class="form-label fw-semibold">Data de nascimento</label>
+            <input asp-for="DataNascimento" class="form-control" type="date" required />
+            <span asp-validation-for="DataNascimento" class="text-danger small"></span>
+        </div>
+
+        <!-- 3. CPF -->
+        <div class="col-md-3">
+            <label asp-for="CPF" class="form-label fw-semibold">CPF</label>
+            <input asp-for="CPF" class="form-control" required placeholder="000.000.000-00" maxlength="14" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" />
+            <span asp-validation-for="CPF" class="text-danger small"></span>
+        </div>
+
+        <!-- 4. Nome do pai -->
+        <div class="col-md-6">
+            <label asp-for="NomePai" class="form-label fw-semibold">Nome do pai</label>
+            <input asp-for="NomePai" class="form-control" placeholder="Nome completo do pai" />
+            <span asp-validation-for="NomePai" class="text-danger small"></span>
+        </div>
+
+        <!-- 5. Nome da mãe -->
+        <div class="col-md-6">
+            <label asp-for="NomeMae" class="form-label fw-semibold">Nome da mãe</label>
+            <input asp-for="NomeMae" class="form-control" placeholder="Nome completo da mãe" required />
+            <span asp-validation-for="NomeMae" class="text-danger small"></span>
+        </div>
+
+        <!-- 6. Naturalidade -->
+        <div class="col-md-4">
+            <label asp-for="Naturalidade" class="form-label fw-semibold">Naturalidade</label>
+            <input asp-for="Naturalidade" class="form-control" placeholder="Cidade natal" />
+            <span asp-validation-for="Naturalidade" class="text-danger small"></span>
+        </div>
+
+        <!-- 7. Escolaridade -->
+        <div class="col-md-4">
+            <label asp-for="Escolaridade" class="form-label fw-semibold">Escolaridade</label>
+            <select asp-for="Escolaridade" class="form-select">
+                <option value="">Selecione...</option>
+                <option value="Analfabeto">Analfabeto</option>
+                <option value="Fundamental">Fundamental</option>
+                <option value="Médio">Médio</option>
+                <option value="Superior">Superior</option>
+            </select>
+            <span asp-validation-for="Escolaridade" class="text-danger small"></span>
+        </div>
+
+        <!-- 8. Nacionalidade -->
+        <div class="col-md-4">
+            <label asp-for="Nacionalidade" class="form-label fw-semibold">Nacionalidade</label>
+            <input asp-for="Nacionalidade" class="form-control" placeholder="Ex: Brasileira" />
+            <span asp-validation-for="Nacionalidade" class="text-danger small"></span>
+        </div>
+
+        <!-- 9. Sexo -->
+        <div class="col-md-3">
+            <label asp-for="Sexo" class="form-label fw-semibold">Sexo</label>
+            <select asp-for="Sexo" class="form-select" required>
+                <option value="">Selecione...</option>
+                <option value="Masculino">Masculino</option>
+                <option value="Feminino">Feminino</option>
+                <option value="Outro">Outro</option>
+            </select>
+            <span asp-validation-for="Sexo" class="text-danger small"></span>
+        </div>
+
+        <!-- 10. Número da identidade -->
+        <div class="col-md-3">
+            <label asp-for="NumeroIdentidade" class="form-label fw-semibold">Número da identidade</label>
+            <input asp-for="NumeroIdentidade" class="form-control" placeholder="RG / Documento de identificação" />
+            <span asp-validation-for="NumeroIdentidade" class="text-danger small"></span>
+        </div>
+
+        <!-- 11. Órgão emissor da identidade -->
+        <div class="col-md-3">
+            <label asp-for="OrgaoEmissorIdentidade" class="form-label fw-semibold">Órgão emissor da identidade</label>
+            <input asp-for="OrgaoEmissorIdentidade" class="form-control" placeholder="Ex: SSP/MG" />
+            <span asp-validation-for="OrgaoEmissorIdentidade" class="text-danger small"></span>
+        </div>
+
+        <!-- 12. Certificado de reservista -->
+        <div class="col-md-3">
+            <label asp-for="CertificadoReservista" class="form-label fw-semibold">Certificado de reservista</label>
+            <input asp-for="CertificadoReservista" class="form-control" placeholder="Número do certificado" />
+            <span asp-validation-for="CertificadoReservista" class="text-danger small"></span>
+        </div>
+
+        <!-- 13. Número do PIS -->
+        <div class="col-md-3">
+            <label asp-for="NumeroPis" class="form-label fw-semibold">Número do PIS</label>
+            <input asp-for="NumeroPis" class="form-control" placeholder="000.00000.00-0" maxlength="14" />
+            <span asp-validation-for="NumeroPis" class="text-danger small"></span>
+        </div>
+
+        <!-- 14. Título de eleitor -->
+        <div class="col-md-3">
+            <label asp-for="TituloEleitor" class="form-label fw-semibold">Título de eleitor</label>
+            <input asp-for="TituloEleitor" class="form-control" placeholder="12 dígitos" maxlength="12" />
+            <span asp-validation-for="TituloEleitor" class="text-danger small"></span>
+        </div>
+
+        <!-- 15. Zona eleitoral -->
+        <div class="col-md-3">
+            <label asp-for="ZonaEleitoral" class="form-label fw-semibold">Zona eleitoral</label>
+            <input asp-for="ZonaEleitoral" class="form-control" placeholder="000" maxlength="4" />
+            <span asp-validation-for="ZonaEleitoral" class="text-danger small"></span>
+        </div>
+
+        <!-- 16. Seção eleitoral -->
+        <div class="col-md-3">
+            <label asp-for="SecaoEleitoral" class="form-label fw-semibold">Seção eleitoral</label>
+            <input asp-for="SecaoEleitoral" class="form-control" placeholder="0000" maxlength="4" />
+            <span asp-validation-for="SecaoEleitoral" class="text-danger small"></span>
+        </div>
+
+        <!-- 17. Número de dependentes -->
+        <div class="col-md-3">
+            <label asp-for="NumeroDependentes" class="form-label fw-semibold">Número de dependentes (opcional)</label>
+            <input asp-for="NumeroDependentes" class="form-control" type="number" min="0" max="50" placeholder="Ex.: 2" />
+            <span asp-validation-for="NumeroDependentes" class="text-danger small"></span>
+        </div>
+
+        <!-- 18. Estado civil -->
+        <div class="col-md-3">
+            <label asp-for="EstadoCivil" class="form-label fw-semibold">Estado civil</label>
+            <select asp-for="EstadoCivil" class="form-select">
+                <option value="">Selecione...</option>
+                <option value="Solteiro(a)">Solteiro(a)</option>
+                <option value="Casado(a)">Casado(a)</option>
+                <option value="União estável">União estável</option>
+                <option value="Divorciado(a)">Divorciado(a)</option>
+                <option value="Viúvo(a)">Viúvo(a)</option>
+            </select>
+            <span asp-validation-for="EstadoCivil" class="text-danger small"></span>
+        </div>
+
+        <!-- 19. Nome do cônjuge -->
+        <div class="col-md-3">
+            <label asp-for="NomeConjuge" class="form-label fw-semibold">Nome do cônjuge</label>
+            <input asp-for="NomeConjuge" class="form-control" placeholder="Nome completo do cônjuge" />
+            <span asp-validation-for="NomeConjuge" class="text-danger small"></span>
+        </div>
+
+        <!-- 20. Regime de casamento -->
+        <div class="col-md-3">
+            <label asp-for="RegimeCasamento" class="form-label fw-semibold">Regime de casamento</label>
+            <select asp-for="RegimeCasamento" class="form-select">
+                <option value="">Selecione...</option>
+                <option value="Comunhão parcial">Comunhão parcial</option>
+                <option value="Comunhão universal">Comunhão universal</option>
+                <option value="Separação total">Separação total</option>
+            </select>
+            <span asp-validation-for="RegimeCasamento" class="text-danger small"></span>
+        </div>
+
+        <!-- 21. Banco -->
+        <div class="col-md-3">
+            <label asp-for="Banco" class="form-label fw-semibold">Banco</label>
+            <input asp-for="Banco" class="form-control" placeholder="Nome ou código do banco" />
+            <span asp-validation-for="Banco" class="text-danger small"></span>
+        </div>
+
+        <!-- 22. Agência -->
+        <div class="col-md-3">
+            <label asp-for="Agencia" class="form-label fw-semibold">Agência</label>
+            <input asp-for="Agencia" class="form-control" placeholder="Número da agência" />
+            <span asp-validation-for="Agencia" class="text-danger small"></span>
+        </div>
+
+        <!-- 23. Conta corrente -->
+        <div class="col-md-3">
+            <label asp-for="ContaCorrente" class="form-label fw-semibold">Conta corrente</label>
+            <input asp-for="ContaCorrente" class="form-control" placeholder="Número da conta" />
+            <span asp-validation-for="ContaCorrente" class="text-danger small"></span>
+        </div>
+
+        <!-- 24. Chave PIX -->
+        <div class="col-md-3">
+            <label asp-for="ChavePix" class="form-label fw-semibold">Chave PIX</label>
+            <input asp-for="ChavePix" class="form-control" placeholder="CPF, e-mail, celular ou chave aleatória" />
+            <span asp-validation-for="ChavePix" class="text-danger small"></span>
+        </div>
+
+        <!-- 25. Email -->
+        <div class="col-md-6">
+            <label asp-for="Email" class="form-label fw-semibold">Email</label>
+            <input asp-for="Email" class="form-control" type="email" placeholder="nome@email.com" required />
+            <span asp-validation-for="Email" class="text-danger small"></span>
+        </div>
+
+        <!-- 26. Telefone -->
+        <div class="col-md-3">
+            <label asp-for="Telefone" class="form-label fw-semibold">Telefone</label>
+            <input asp-for="Telefone" id="Telefone" class="form-control" placeholder="(00) 00000-0000" maxlength="15" inputmode="numeric" pattern="\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}" required />
+            <span asp-validation-for="Telefone" class="text-danger small"></span>
+        </div>
+
+        <!-- 27. Logradouro -->
+        <div class="col-md-9">
+            <label asp-for="Logradouro" class="form-label fw-semibold">Logradouro</label>
+            <input asp-for="Logradouro" class="form-control" placeholder="Rua, Av, Número, Complemento" required />
+            <span asp-validation-for="Logradouro" class="text-danger small"></span>
+        </div>
+
+        <!-- 28. Bairro -->
+        <div class="col-md-4">
+            <label asp-for="Bairro" class="form-label fw-semibold">Bairro</label>
+            <input asp-for="Bairro" class="form-control" placeholder="Bairro" required />
+            <span asp-validation-for="Bairro" class="text-danger small"></span>
+        </div>
+
+        <!-- 29. Cidade -->
+        <div class="col-md-5">
+            <label asp-for="Cidade" class="form-label fw-semibold">Cidade</label>
+            <input asp-for="Cidade" class="form-control" placeholder="Cidade" required />
+            <span asp-validation-for="Cidade" class="text-danger small"></span>
+        </div>
+
+        <!-- 30. UF -->
+        <div class="col-md-3">
+            <label asp-for="Uf" class="form-label fw-semibold">UF</label>
+            <select asp-for="Uf" class="form-select">
+                <option value="">Selecione...</option>
+                @foreach (var uf in new[] { "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO" })
+                {
+                    <option value="@uf">@uf</option>
+                }
+            </select>
+            <span asp-validation-for="Uf" class="text-danger small"></span>
+        </div>
+
+        <!-- 30. CEP -->
+        <div class="col-md-4">
+            <label asp-for="CEP" class="form-label fw-semibold">CEP</label>
+            <input asp-for="CEP" class="form-control" placeholder="35.000-000" maxlength="10" pattern="\d{2}\.?\d{3}-\d{3}" required />
+            <span asp-validation-for="CEP" class="text-danger small"></span>
+        </div>
+
+        <!-- 31. Data de admissão -->
+        <div class="col-md-4">
+            <label asp-for="DataAdmissao" class="form-label fw-semibold">Data de admissão</label>
+            <input asp-for="DataAdmissao" class="form-control" type="date" required />
+            <span asp-validation-for="DataAdmissao" class="text-danger small"></span>
+        </div>
+
+        <!-- 32. Declara imposto de renda -->
+        <div class="col-md-4">
+            <label class="form-label fw-semibold d-block">Declara imposto de renda</label>
+            <div class="form-check mt-2">
+                <input asp-for="DeclaraImpostoRenda" class="form-check-input" id="checkIR" />
+                <label class="form-check-label fw-semibold" for="checkIR">Sim, declara imposto de renda</label>
+            </div>
+            <span asp-validation-for="DeclaraImpostoRenda" class="text-danger small"></span>
+        </div>
+
+        <div class="col-12">
+            <div class="form-check mt-2">
+                <input asp-for="Ativo" class="form-check-input" id="checkAtivo" checked />
+                <label asp-for="Ativo" class="form-check-label fw-semibold" for="checkAtivo">Cooperado Ativo</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4 d-flex gap-2">
+        <button type="submit" class="btn btn-primary px-4"><i class="bi bi-check2 me-1"></i>Salvar</button>
+        <button type="button" onclick="history.back()" class="btn btn-outline-secondary px-4">Cancelar</button>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function applyMask(element, formatter) {
+            if (!element) return;
+            element.addEventListener('input', function () {
+                element.value = formatter(element.value);
+            });
+        }
+
+        function digitsOnly(value) {
+            return value.replace(/\D/g, '');
+        }
+
+        applyMask(document.getElementById('CPF'), function (value) {
+            var digits = digitsOnly(value).slice(0, 11);
+            if (digits.length <= 3) return digits;
+            if (digits.length <= 6) return digits.slice(0, 3) + '.' + digits.slice(3);
+            if (digits.length <= 9) return digits.slice(0, 3) + '.' + digits.slice(3, 6) + '.' + digits.slice(6);
+            return digits.slice(0, 3) + '.' + digits.slice(3, 6) + '.' + digits.slice(6, 9) + '-' + digits.slice(9);
+        });
+
+        applyMask(document.getElementById('NumeroPis'), function (value) {
+            var digits = digitsOnly(value).slice(0, 11);
+            if (digits.length <= 3) return digits;
+            if (digits.length <= 8) return digits.slice(0, 3) + '.' + digits.slice(3);
+            if (digits.length <= 10) return digits.slice(0, 3) + '.' + digits.slice(3, 8) + '.' + digits.slice(8);
+            return digits.slice(0, 3) + '.' + digits.slice(3, 8) + '.' + digits.slice(8, 10) + '-' + digits.slice(10);
+        });
+
+        applyMask(document.getElementById('TituloEleitor'), function (value) {
+            return digitsOnly(value).slice(0, 12);
+        });
+
+        applyMask(document.getElementById('ZonaEleitoral'), function (value) {
+            return digitsOnly(value).slice(0, 4);
+        });
+
+        applyMask(document.getElementById('SecaoEleitoral'), function (value) {
+            return digitsOnly(value).slice(0, 4);
+        });
+
+        applyMask(document.getElementById('CEP'), function (value) {
+            var digits = digitsOnly(value).slice(0, 8);
+            if (digits.length <= 2) return digits;
+            if (digits.length <= 5) return digits.slice(0, 2) + '.' + digits.slice(2);
+            return digits.slice(0, 2) + '.' + digits.slice(2, 5) + '-' + digits.slice(5);
+        });
+
+        applyMask(document.getElementById('Telefone'), function (value) {
+            var digits = digitsOnly(value).slice(0, 11);
+            if (digits.length === 0) return '';
+            if (digits.length <= 2) return '(' + digits;
+            var ddd = '(' + digits.slice(0, 2) + ') ';
+            var numero = digits.slice(2);
+            if (numero.length > 8) return ddd + numero.slice(0, 5) + '-' + numero.slice(5);
+            if (numero.length > 4) return ddd + numero.slice(0, 4) + '-' + numero.slice(4);
+            return ddd + numero;
+        });
+    </script>
+}

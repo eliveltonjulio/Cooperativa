@@ -1,0 +1,54 @@
+﻿@model IEnumerable<Cooperativa.Models.ContratoFuncaoAdicional>
+@{
+    ViewData["Title"] = "Adicionais por contrato e função";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-1">Adicionais por contrato e função</h2>
+        <p class="text-muted mb-0">Defina quais adicionais se aplicam a cada função nos contratos cadastrados.</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">Novo vínculo</a>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-6">
+        <input name="busca" value="@ViewBag.Busca" class="form-control" placeholder="Buscar por contrato, função ou adicional" />
+    </div>
+    <div class="col-md-2">
+        <button class="btn btn-outline-secondary w-100">Filtrar</button>
+    </div>
+    <div class="col-md-2">
+        <a asp-action="Index" class="btn btn-outline-light text-dark w-100">Limpar</a>
+    </div>
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Contrato (empresa)</th>
+            <th>Função</th>
+            <th>Adicional</th>
+            <th>Tipo de cálculo</th>
+            <th>Valor</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Contrato?.EmpresaNome</td>
+                <td>@item.Funcao?.Nome</td>
+                <td>@item.Adicional?.Nome</td>
+                <td>@item.Adicional?.TipoCalculo</td>
+                <td>@item.Adicional?.Valor.ToString("0.00")</td>
+                <td>
+                    <a asp-action="Details" asp-route-contratoId="@item.ContratoId" asp-route-funcaoId="@item.FuncaoId" asp-route-adicionalId="@item.AdicionalId" class="btn btn-sm btn-outline-info">Detalhes</a>
+                    <a asp-action="Edit" asp-route-contratoId="@item.ContratoId" asp-route-funcaoId="@item.FuncaoId" asp-route-adicionalId="@item.AdicionalId" class="btn btn-sm btn-outline-warning">Editar</a>
+                    <a asp-action="Delete" asp-route-contratoId="@item.ContratoId" asp-route-funcaoId="@item.FuncaoId" asp-route-adicionalId="@item.AdicionalId" class="btn btn-sm btn-outline-danger">Excluir</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

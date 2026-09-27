@@ -1,0 +1,188 @@
+@model Cooperativa.Models.FolhaPagamento
+@{
+    ViewData["Title"] = "Detalhes da folha";
+    var detalhe = ViewBag.Detalhe as Cooperativa.Models.DetalheFolha;
+    var nomesContratos = ViewBag.NomesContratos as Dictionary<Guid, string> ?? new Dictionary<Guid, string>();
+    var nomesFuncoes = ViewBag.NomesFuncoes as Dictionary<Guid, string> ?? new Dictionary<Guid, string>();
+
+    static string Horas(decimal horas) => $"{horas.ToString("0.##")} h";
+
+    static string FraseBaseRemuneracao(Cooperativa.Models.DetalheGrupoFolha grupo) =>
+        grupo.TipoRemuneracao?.Trim().ToUpperInvariant() switch
+        {
+            "MES" => "valor mensal integral da competência",
+            "DIA" => $"valor por dia × {grupo.DiasTrabalhados} dia(s) com registro de ponto",
+            _ => $"valor-hora ({grupo.ValorHora.ToString("C")}) × {Horas(grupo.HorasNormais)} normais"
+        };
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-1">Detalhes da folha</h2>
+        <p class="text-muted mb-0">Resumo financeiro e detalhamento do cálculo da competência.</p>
+    </div>
+    <button type="button" onclick="history.back()" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Voltar
+    </button>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-start mb-4">
+            <div>
+                <h4 class="mb-1">@Model.Cooperado?.Nome</h4>
+                <p class="text-muted mb-0">Competência: @Model.Competencia.ToString("MM/yyyy")</p>
+            </div>
+            <span class="badge bg-warning text-dark fs-6">Líquido @Model.Liquido.ToString("C")</span>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-4"><strong>Salário:</strong> @Model.Salario.ToString("C")</div>
+            <div class="col-md-4"><strong>Adicional:</strong> @Model.Adicional.ToString("C")</div>
+            <div class="col-md-4"><strong>Descontos:</strong> @Model.Descontos.ToString("C")</div>
+        </div>
+    </div>
+</div>
+
+@if (detalhe == null)
+{
+    <div class="alert alert-info mt-4 mb-0">
+        <i class="bi bi-info-circle me-2"></i>Detalhamento não disponível: folha cadastrada/ajustada manualmente ou gerada antes desta atualização.
+        Gere novamente pela opção <strong>Gerar folha</strong> para visualizar o detalhamento completo.
+    </div>
+}
+else
+{
+    <h5 class="mt-4 mb-3"><i class="bi bi-list-check me-1"></i>Detalhamento do cálculo</h5>
+
+    @foreach (var grupo in detalhe.Grupos)
+    {
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-header bg-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>@nomesContratos.GetValueOrDefault(grupo.ContratoId, "Contrato não encontrado")</strong>
+                        <span class="text-muted">— Função: @nomesFuncoes.GetValueOrDefault(grupo.FuncaoId, "Função não encontrada")</span>
+                        @if (grupo.DiasTrabalhados > 0)
+                        {
+                            <span class="text-muted">· @grupo.DiasTrabalhados dia(s) com ponto</span>
+                        }
+                    </div>
+                    <span class="badge bg-secondary">Remuneração: @grupo.TipoRemuneracao</span>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-sm table-hover mb-0">
+                    <thead class="table-light">
+                        <tr><th style="width:28%">Componente</th><th style="width:16%">Quantidade</th><th>Critério de cálculo</th><th class="text-end" style="width:18%">Valor</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Horas normais</td>
+                            <td>@Horas(grupo.HorasNormais)</td>
+                            <td class="text-muted small">@FraseBaseRemuneracao(grupo)</td>
+                            <td class="text-end">@grupo.ValorHorasNormais.ToString("C")</td>
+                        </tr>
+                        @if (grupo.HorasExtrasComum > 0)
+                        {
+                            <tr>
+                                <td>Horas extras</td>
+                                <td>@Horas(grupo.HorasExtrasComum)</td>
+                                <td class="text-muted small">valor-hora × (1 + @grupo.PercentualHeComum.ToString("0.##")%)</td>
+                                <td class="text-end">@grupo.ValorHorasExtrasComum.ToString("C")</td>
+                            </tr>
+                        }
+                        @if (grupo.HorasExtrasEspeciais > 0)
+                        {
+                            <tr>
+                                <td>Horas extras (domingo/feriado)</td>
+                                <td>@Horas(grupo.HorasExtrasEspeciais)</td>
+                                <td class="text-muted small">valor-hora × (1 + @grupo.PercentualHeEspecial.ToString("0.##")%)</td>
+                                <td class="text-end">@grupo.ValorHorasExtrasEspeciais.ToString("C")</td>
+                            </tr>
+                        }
+                        @if (grupo.HorasNoturnas > 0)
+                        {
+                            <tr>
+                                <td>Adicional noturno</td>
+                                <td>@Horas(grupo.HorasNoturnas)</td>
+                                <td class="text-muted small">valor-hora × (1 + 20%)</td>
+                                <td class="text-end">@grupo.ValorAdicionalNoturno.ToString("C")</td>
+                            </tr>
+                        }
+                        @foreach (var adicional in grupo.Adicionais)
+                        {
+                            <tr>
+                                <td>Adicional</td>
+                                <td>—</td>
+                                <td class="text-muted small">@adicional.Descricao</td>
+                                <td class="text-end">@adicional.Valor.ToString("C")</td>
+                            </tr>
+                        }
+                        <tr class="table-light">
+                            <td colspan="3" class="fw-semibold">Subtotal</td>
+                            <td class="text-end fw-semibold">@grupo.TotalGrupo.ToString("C")</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+
+    <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header bg-white">
+            <strong><i class="bi bi-receipt me-1"></i>Descontos (despesas da folha)</strong>
+        </div>
+        <div class="card-body p-0">
+            @if (detalhe.Descontos.Count == 0)
+            {
+                <p class="text-muted p-3 mb-0">Nenhuma despesa da folha ativa cadastrada.</p>
+            }
+            else
+            {
+                <table class="table table-sm table-hover mb-0">
+                    <thead class="table-light">
+                        <tr><th>Despesa</th><th class="text-end" style="width:20%">Valor debitado</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var desconto in detalhe.Descontos)
+                        {
+                            <tr>
+                                <td>@desconto.Descricao</td>
+                                <td class="text-end text-danger">-@desconto.Valor.ToString("C")</td>
+                            </tr>
+                        }
+                        <tr class="table-light">
+                            <td class="fw-semibold">Total de descontos</td>
+                            <td class="text-end fw-semibold text-danger">-@detalhe.TotalDescontos.ToString("C")</td>
+                        </tr>
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-3">
+            <div class="row text-center">
+                <div class="col-md-4">
+                    <small class="text-muted d-block">Total bruto</small>
+                    <strong class="fs-5">@detalhe.TotalBruto.ToString("C")</strong>
+                </div>
+                <div class="col-md-4">
+                    <small class="text-muted d-block">Total de descontos</small>
+                    <strong class="fs-5 text-danger">@detalhe.TotalDescontos.ToString("C")</strong>
+                </div>
+                <div class="col-md-4">
+                    <small class="text-muted d-block">Líquido</small>
+                    <strong class="fs-5 text-success">@detalhe.Liquido.ToString("C")</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex gap-2 mb-4">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Editar</a>
+        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">Excluir</a>
+    </div>
+}
+}

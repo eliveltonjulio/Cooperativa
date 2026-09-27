@@ -1,0 +1,14 @@
+C:\Projetos\Cooperativa\obj\Debug\net10.0\Cooperativa.GeneratedMSBuildEditorConfig.editorconfig
+C:\Projetos\Cooperativa\obj\Debug\net10.0\Cooperativa.AssemblyInfoInputs.cache
+C:\Projetos\Cooperativa\obj\Debug\net10.0\Cooperativa.AssemblyInfo.cs
+C:\Projetos\Cooperativa\obj\Debug\net10.0\Cooperativa.csproj.CoreCompileInputs.cache
+C:\Projetos\Cooperativa\bin\Debug\net10.0\Cooperativa.deps.json
+C:\Projetos\Cooperativa\bin\Debug\net10.0\Cooperativa.dll
+C:\Projetos\Cooperativa\bin\Debug\net10.0\Cooperativa.pdb
+C:\Projetos\Cooperativa\obj\Debug\net10.0\Cooperativa.dll
+C:\Projetos\Cooperativa\obj\Debug\net10.0\refint\Cooperativa.dll
+C:\Projetos\Cooperativa\obj\Debug\net10.0\Cooperativa.pdb
+C:\Projetos\Cooperativa\obj\Debug\net10.0\ref\Cooperativa.dll
+C:\Projetos\Cooperativa\bin\Debug\net10.0\Cooperativa.exe
+C:\Projetos\Cooperativa\bin\Debug\net10.0\Cooperativa.runtimeconfig.json
+C:\Projetos\Cooperativa\obj\Debug\net10.0\Cooperativa.genruntimeconfig.cache

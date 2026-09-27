@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Cooperativa.Domain\Cooperativa.Domain.csproj" />
+    <ProjectReference Include="..\Cooperativa.Application\Cooperativa.Application.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Cooperativa.Data\CooperativaDbContext.cs" Link="CooperativaDbContext.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>

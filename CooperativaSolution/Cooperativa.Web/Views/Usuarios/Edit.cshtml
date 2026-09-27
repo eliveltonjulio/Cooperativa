@@ -1,0 +1,153 @@
+@model Cooperativa.Models.Usuario
+@{
+    ViewData["Title"] = "Editar usuário";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-1">Editar Usuário</h2>
+        <p class="text-muted mb-0">Atualize os dados pessoais, contato, acesso e informações funcionais.</p>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary">Voltar</a>
+</div>
+
+<form asp-action="Edit" asp-route-id="@Model.Id" method="post" class="card border-0 shadow-sm p-4">
+    <input type="hidden" asp-for="Id" />
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 mb-3"></div>
+
+    <!-- Seção 1: Vínculo e Identificação Pessoal -->
+    <div class="card bg-light border-0 p-3 mb-4">
+        <h5 class="text-primary mb-3"><i class="bi bi-person-bounding-box me-2"></i>1. Identificação Pessoal</h5>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="CooperadoId" class="form-label fw-semibold">Cooperado Vinculado</label>
+                <select asp-for="CooperadoId" id="selectCooperado" class="form-select">
+                    <option value="">-- Não vinculado / Usuário externo --</option>
+                    @foreach (var c in (IEnumerable<Cooperativa.Models.Cooperado>)ViewBag.Cooperados)
+                    {
+                        <option value="@c.Id" selected="@(Model.CooperadoId == c.Id)">@c.Nome (CPF: @c.CPF)</option>
+                    }
+                </select>
+                <small class="text-muted">Selecione para sincronizar dados cadastrados do cooperado.</small>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Nome" class="form-label fw-semibold">Nome Completo</label>
+                <input asp-for="Nome" id="inputNome" class="form-control" />
+                <span asp-validation-for="Nome" class="text-danger small"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Seção 2: Contato -->
+    <div class="card bg-light border-0 p-3 mb-4">
+        <h5 class="text-primary mb-3"><i class="bi bi-telephone me-2"></i>2. Contato</h5>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="Email" class="form-label fw-semibold">E-mail (para login e notificações)</label>
+                <input asp-for="Email" id="inputEmail" class="form-control" type="email" />
+                <span asp-validation-for="Email" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Celular" class="form-label fw-semibold">Telefone Celular (formato 11988882222)</label>
+                <input asp-for="Celular" id="inputCelular" class="form-control" maxlength="11" />
+                <span asp-validation-for="Celular" class="text-danger small"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Seção 3: Dados de Acesso -->
+    <div class="card bg-light border-0 p-3 mb-4">
+        <h5 class="text-primary mb-3"><i class="bi bi-key me-2"></i>3. Dados de Acesso</h5>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label asp-for="Login" class="form-label fw-semibold">Nome de Usuário (Login)</label>
+                <input asp-for="Login" class="form-control" />
+                <span asp-validation-for="Login" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Alterar Senha (Opcional)</label>
+                <input name="novaSenha" class="form-control" type="password" placeholder="Deixe em branco para manter a atual" />
+                <small class="text-muted">Preencha apenas se desejar redefinir a senha do usuário.</small>
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="Perfil" class="form-label fw-semibold">Perfil de Acesso</label>
+                <select asp-for="Perfil" asp-items="ViewBag.PerfisUsuario" class="form-select"></select>
+                <span asp-validation-for="Perfil" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-12">
+                <div class="form-check form-switch mt-2">
+                    <input class="form-check-input" type="checkbox" asp-for="Ativo" id="checkAtivo" />
+                    <label class="form-check-label fw-semibold" for="checkAtivo">Conta Ativa (Permite acesso ao sistema)</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Seção 4: Informações Funcionais -->
+    <div class="card bg-light border-0 p-3 mb-4">
+        <h5 class="text-primary mb-3"><i class="bi bi-briefcase me-2"></i>4. Informações Funcionais</h5>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label asp-for="Cargo" class="form-label fw-semibold">Cargo ou Função na Cooperativa</label>
+                <input asp-for="Cargo" id="inputCargo" class="form-control" />
+                <span asp-validation-for="Cargo" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="Equipe" class="form-label fw-semibold">Equipe Vinculada (Coordenadores / Cooperados)</label>
+                <input asp-for="Equipe" id="inputEquipe" class="form-control" />
+                <span asp-validation-for="Equipe" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="DataIngresso" class="form-label fw-semibold">Data de Ingresso na Cooperativa</label>
+                <input asp-for="DataIngresso" id="inputDataIngresso" class="form-control" type="date" />
+                <span asp-validation-for="DataIngresso" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="ContratoId" class="form-label fw-semibold">Contrato (empresa) - Opcional</label>
+                <select asp-for="ContratoId" id="selectContrato" class="form-select" asp-items="@(new SelectList(ViewBag.Contratos, "Id", "EmpresaNome"))">
+                    <option value="">-- Nenhum / Geral --</option>
+                </select>
+                <span asp-validation-for="ContratoId" class="text-danger small"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-2 d-flex gap-2">
+        <button type="submit" class="btn btn-success px-4 py-2"><i class="bi bi-check2-circle me-1"></i>Salvar Alterações</button>
+        <a asp-action="Index" class="btn btn-outline-secondary px-4 py-2">Cancelar</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById('selectCooperado')?.addEventListener('change', async function () {
+            const cooperadoId = this.value;
+            if (!cooperadoId) return;
+
+            try {
+                const response = await fetch(`@Url.Action("ObterDadosCooperado")?id=${encodeURIComponent(cooperadoId)}`);
+                if (!response.ok) return;
+
+                const dados = await response.json();
+                if (dados.nome) document.getElementById('inputNome').value = dados.nome;
+                if (dados.email) document.getElementById('inputEmail').value = dados.email;
+                if (dados.celular) document.getElementById('inputCelular').value = dados.celular;
+                if (dados.contratoId) document.getElementById('selectContrato').value = dados.contratoId;
+                if (dados.cargo) document.getElementById('inputCargo').value = dados.cargo;
+                if (dados.equipe) document.getElementById('inputEquipe').value = dados.equipe;
+                if (dados.dataIngresso) document.getElementById('inputDataIngresso').value = dados.dataIngresso;
+            } catch (err) {
+                console.error("Erro ao carregar dados do cooperado:", err);
+            }
+        });
+    </script>
+}

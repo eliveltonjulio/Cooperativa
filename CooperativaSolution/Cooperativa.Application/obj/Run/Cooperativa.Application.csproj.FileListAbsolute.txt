@@ -1,0 +1,15 @@
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\bin\Run\Cooperativa.Application.deps.json
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\bin\Run\Cooperativa.Application.dll
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\bin\Run\Cooperativa.Application.pdb
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\bin\Run\Cooperativa.Domain.dll
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\bin\Run\Cooperativa.Domain.pdb
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\obj\Run\Cooperativa.Application.csproj.AssemblyReference.cache
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\obj\Run\Cooperativa.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\obj\Run\Cooperativa.Application.AssemblyInfoInputs.cache
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\obj\Run\Cooperativa.Application.AssemblyInfo.cs
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\obj\Run\Cooperativa.Application.csproj.CoreCompileInputs.cache
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\obj\Run\Cooperat.34404865.Up2Date
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\obj\Run\Cooperativa.Application.dll
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\obj\Run\refint\Cooperativa.Application.dll
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\obj\Run\Cooperativa.Application.pdb
+C:\Projetos\Cooperativa\CooperativaSolution\Cooperativa.Application\obj\Run\ref\Cooperativa.Application.dll
