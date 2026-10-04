@@ -1,0 +1,74 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  WEBAPP_NAME: app-cooperativa
+  CONFIGURATION: Release
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore
+        run: dotnet restore CooperativaSolution/CooperativaSolution.slnx
+
+      - name: Build
+        run: dotnet build CooperativaSolution/CooperativaSolution.slnx -c ${{ env.CONFIGURATION }} --no-restore
+
+      - name: Test
+        run: dotnet test CooperativaSolution/CooperativaSolution.slnx -c ${{ env.CONFIGURATION }} --no-build --logger "trx;LogFileName=test-results.trx"
+
+      - name: Publish
+        run: dotnet publish CooperativaSolution/Cooperativa.Web/Cooperativa.Web.csproj -c ${{ env.CONFIGURATION }} -o publish
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: webapp-publish
+          path: publish
+          retention-days: 7
+
+  deploy:
+    # Publica apenas em push no main (pull requests só validam build/testes).
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      id-token: write   # Necessário para login OIDC no Azure
+      contents: read
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: webapp-publish
+          path: publish
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy to App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.WEBAPP_NAME }}
+          package: publish

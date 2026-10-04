@@ -1,0 +1,24 @@
+# Artefatos de build e dependências locais
+**/bin/
+**/obj/
+**/artifacts/
+**/publish/
+TestResults/
+
+# Git e IDE
+.git/
+.gitignore
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+
+# Logs e temporários
+*.log
+*.tmp
+.venv/
+
+# Infra local (não necessária dentro da imagem)
+docker-compose*.yml
+docs/

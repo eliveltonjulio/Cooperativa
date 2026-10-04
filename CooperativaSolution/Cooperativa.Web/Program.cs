@@ -1,6 +1,7 @@
 using Cooperativa.Data;
 using Cooperativa.Models;
 using Cooperativa.Web.Services;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 
@@ -57,7 +58,7 @@ using (var scope = app.Services.CreateScope())
 
     try
     {
-        dbContext.Database.Migrate();
+        AplicarMigracoes(dbContext, app.Logger);
         dbContext.Database.ExecuteSqlRaw("""
             ALTER TABLE "JornadaContratual"
                 ADD COLUMN IF NOT EXISTS hora_inicio_intervalo time without time zone NULL,
@@ -427,7 +428,12 @@ using (var scope = app.Services.CreateScope())
             END $$;
             """);
 
-        // Seed admin padrão se não houver
+        // Seed admin padrão: usa a senha de "AdminInicial:Senha" (user-secrets/App Settings);
+        // se ausente, gera uma senha forte única e a registra no log apenas nesta inicialização.
+        var senhaAdminConfigurada = builder.Configuration["AdminInicial:Senha"];
+        var senhaGerada = string.IsNullOrWhiteSpace(senhaAdminConfigurada);
+        var senhaAdmin = senhaGerada ? GerarSenhaForte() : senhaAdminConfigurada!.Trim();
+
         var adminExistente = dbContext.UsuariosSistema.FirstOrDefault(u => u.Login.ToLower() == "admin");
         if (adminExistente == null)
         {
@@ -438,17 +444,41 @@ using (var scope = app.Services.CreateScope())
                 Login = "admin",
                 Email = "admin@cooperativa.com.br",
                 Celular = "11999999999",
-                Senha = BCrypt.Net.BCrypt.HashPassword("123456"),
+                Senha = BCrypt.Net.BCrypt.HashPassword(senhaAdmin),
                 Perfil = "Administrador",
                 Ativo = true,
                 Cargo = "Administração Geral",
                 DataIngresso = DateTime.UtcNow.Date
             });
             dbContext.SaveChanges();
+
+            if (senhaGerada)
+            {
+                app.Logger.LogWarning(
+                    "Usuário admin criado com senha gerada automaticamente. Senha inicial: {Senha} — troque após o primeiro acesso.",
+                    senhaAdmin);
+            }
+            else
+            {
+                app.Logger.LogInformation("Usuário admin criado usando a senha definida em AdminInicial:Senha.");
+            }
         }
-        else if (adminExistente.Perfil != "Administrador")
+        else
         {
-            adminExistente.Perfil = "Administrador";
+            // Rotaciona a senha legada "123456" ainda presente em bancos criados por versões anteriores.
+            if (SenhaEhLegada(adminExistente.Senha))
+            {
+                adminExistente.Senha = BCrypt.Net.BCrypt.HashPassword(senhaAdmin);
+                app.Logger.LogWarning(
+                    "Senha legada (123456) do usuário admin foi rotacionada{Detalhe}.",
+                    senhaGerada ? $" para senha gerada: {senhaAdmin}" : " usando AdminInicial:Senha");
+            }
+
+            if (adminExistente.Perfil != "Administrador")
+            {
+                adminExistente.Perfil = "Administrador";
+            }
+
             dbContext.SaveChanges();
         }
 
@@ -460,6 +490,86 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+// Aplica as migrações do EF Core com suporte a baseline:
+// - Banco novo (ex.: Azure Database recém-criado): cria o schema completo pelas migrações.
+// - Banco legado (tabelas já existem, sem histórico de migrações): registra as migrações
+//   como aplicadas (baseline) para não tentar recriar as tabelas existentes.
+static void AplicarMigracoes(CooperativaDbContext db, ILogger logger)
+{
+    // Garante a tabela de histórico mesmo em bancos legados criados fora do controle do EF,
+    // para que a leitura de migrações pendentes nunca falhe por tabela inexistente.
+    db.Database.ExecuteSqlRaw("""
+        CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+            "MigrationId" character varying(150) NOT NULL,
+            "ProductVersion" character varying(32) NOT NULL,
+            CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY ("MigrationId")
+        );
+        """);
+
+    var pendentes = db.Database.GetPendingMigrations().ToList();
+    if (pendentes.Count == 0)
+    {
+        return;
+    }
+
+    // "Cooperados" é a tabela central do sistema: se ela já existe, o schema foi
+    // criado antes do EF (script SQL legado) e apenas o baseline é necessário.
+    var schemaJaExiste = db.Database.SqlQueryRaw<int>(
+            "SELECT CASE WHEN EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'Cooperados') THEN 1 ELSE 0 END AS \"Value\"")
+        .First() == 1;
+
+    if (schemaJaExiste)
+    {
+        foreach (var migracao in pendentes)
+        {
+            db.Database.ExecuteSqlRaw(
+                """INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion") VALUES ({0}, '10.0.0') ON CONFLICT DO NOTHING;""",
+                migracao);
+        }
+
+        logger.LogWarning(
+            "Banco de dados legado detectado (schema existente sem histórico de migrações). {Count} migração(ões) registrada(s) como aplicada(s) — baseline.",
+            pendentes.Count);
+        return;
+    }
+
+    db.Database.Migrate();
+    logger.LogInformation("{Count} migração(ões) aplicada(s) no banco de dados.", pendentes.Count);
+}
+
+// Gera uma senha forte aleatória (letras, dígitos e símbolos, 20 caracteres).
+static string GerarSenhaForte()
+{
+    const string letras = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ";
+    const string digitos = "23456789";
+    const string simbolos = "!@#$%&*?-+";
+    var todos = letras + digitos + simbolos;
+    var chars = new char[20];
+    for (var i = 0; i < chars.Length; i++)
+    {
+        chars[i] = todos[System.Security.Cryptography.RandomNumberGenerator.GetInt32(todos.Length)];
+    }
+
+    // Garante ao menos um dígito e um símbolo.
+    chars[0] = digitos[System.Security.Cryptography.RandomNumberGenerator.GetInt32(digitos.Length)];
+    chars[1] = simbolos[System.Security.Cryptography.RandomNumberGenerator.GetInt32(simbolos.Length)];
+    return new string(chars);
+}
+
+// Detecta o hash bcrypt da senha legada "123456" sem lançar se o hash for inválido.
+static bool SenhaEhLegada(string? hash)
+{
+    if (string.IsNullOrWhiteSpace(hash)) return false;
+    try
+    {
+        return BCrypt.Net.BCrypt.Verify("123456", hash);
+    }
+    catch
+    {
+        return false;
+    }
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -467,9 +577,19 @@ if (app.Environment.IsDevelopment())
 else
 {
     app.UseExceptionHandler("/Home/Error");
+
+    // HSTS força o navegador a usar HTTPS por 1 ano em produção.
+    app.UseHsts();
+
+    // No App Service (e atrás de qualquer proxy reverso) o TLS termina na frente:
+    // processa X-Forwarded-For/X-Forwarded-Proto para que Request.Scheme seja https.
+    app.UseForwardedHeaders(new ForwardedHeadersOptions
+    {
+        ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+    });
 }
 
-// app.UseHttpsRedirection(); // Descomente se quiser forçar HTTPS
+app.UseHttpsRedirection(); // Força redirecionamento HTTP → HTTPS
 app.UseStaticFiles(); // Serve arquivos de wwwroot (e.g., /css/site.css, /js/site.js)
 
 app.UseRouting();

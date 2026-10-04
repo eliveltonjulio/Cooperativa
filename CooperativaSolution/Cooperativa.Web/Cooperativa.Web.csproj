@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <ItemGroup>
     <ProjectReference Include="..\Cooperativa.Application\Cooperativa.Application.csproj" />
@@ -13,6 +13,10 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="10.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.0" />
   </ItemGroup>
 
@@ -25,6 +29,7 @@
     <CopyRazorGenerateFilesToOutputDirectory>true</CopyRazorGenerateFilesToOutputDirectory>
     <CopyRazorFilesToOutputDirectory>true</CopyRazorFilesToOutputDirectory>
     <EnableDefaultContentItems>true</EnableDefaultContentItems>
+    <UserSecretsId>f6cab457-7c73-4f9e-b43f-fecd2f961e2a</UserSecretsId>
   </PropertyGroup>
 
 
