@@ -3,7 +3,9 @@ using Cooperativa.Web.Models;
 using Cooperativa.Web.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System.Security.Claims;
 
 namespace Cooperativa.Web.Controllers;
@@ -11,13 +13,22 @@ namespace Cooperativa.Web.Controllers;
 public class AuthController : Controller
 {
     private readonly UsuarioService _usuarioService;
+    private readonly IConfiguration _configuration;
 
-    public AuthController(UsuarioService usuarioService)
+    public AuthController(UsuarioService usuarioService, IConfiguration configuration)
     {
         _usuarioService = usuarioService;
+        _configuration = configuration;
     }
 
+    /// <summary>
+    /// Indica se a autenticação em duas etapas (MFA) está ativa.
+    /// Controlada pela chave "Mfa:Habilitado" no appsettings; quando ausente, considera-se habilitada.
+    /// </summary>
+    private bool MfaHabilitado => _configuration.GetValue("Mfa:Habilitado", true);
+
     [HttpGet]
+    [AllowAnonymous]
     public IActionResult Login()
     {
         if (User.Identity?.IsAuthenticated == true)
@@ -29,6 +40,7 @@ public class AuthController : Controller
     }
 
     [HttpPost]
+    [AllowAnonymous]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Login(LoginViewModel model)
     {
@@ -41,7 +53,16 @@ public class AuthController : Controller
 
         if (usuario == null)
         {
-            ModelState.AddModelError(string.Empty, "Login ou senha inválidos, ou conta inativa.");
+            var cadastrado = await _usuarioService.ExisteUsuarioAsync(model.Login);
+            if (!cadastrado)
+            {
+                ModelState.AddModelError(string.Empty, "Usuário não cadastrado");
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "Login ou senha inválidos, ou conta inativa.");
+            }
+
             return View(model);
         }
 
@@ -49,7 +70,7 @@ public class AuthController : Controller
         var ehAdmin = perfilNormalizado.Equals("Administrador", StringComparison.OrdinalIgnoreCase)
                    || perfilNormalizado.Equals("Admin", StringComparison.OrdinalIgnoreCase);
 
-        if (ehAdmin)
+        if (ehAdmin && MfaHabilitado)
         {
             // Exige MFA para administradores
             var codigoMfa = await _usuarioService.GerarMfaAsync(usuario);
@@ -65,8 +86,14 @@ public class AuthController : Controller
     }
 
     [HttpGet]
+    [AllowAnonymous]
     public IActionResult VerificarMfa(string login)
     {
+        if (!MfaHabilitado)
+        {
+            return RedirectToAction(nameof(Login));
+        }
+
         if (string.IsNullOrWhiteSpace(login))
         {
             return RedirectToAction(nameof(Login));
@@ -82,9 +109,15 @@ public class AuthController : Controller
     }
 
     [HttpPost]
+    [AllowAnonymous]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> VerificarMfa(MfaViewModel model)
     {
+        if (!MfaHabilitado)
+        {
+            return RedirectToAction(nameof(Login));
+        }
+
         if (!ModelState.IsValid)
         {
             return View(model);
@@ -103,12 +136,14 @@ public class AuthController : Controller
     }
 
     [HttpGet]
+    [AllowAnonymous]
     public IActionResult EsqueciSenha()
     {
         return View(new EsqueciSenhaViewModel());
     }
 
     [HttpPost]
+    [AllowAnonymous]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> EsqueciSenha(EsqueciSenhaViewModel model)
     {
@@ -131,6 +166,7 @@ public class AuthController : Controller
     }
 
     [HttpGet]
+    [AllowAnonymous]
     public IActionResult RedefinirSenha(string token)
     {
         if (string.IsNullOrWhiteSpace(token))
@@ -143,6 +179,7 @@ public class AuthController : Controller
     }
 
     [HttpPost]
+    [AllowAnonymous]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> RedefinirSenha(RedefinirSenhaViewModel model)
     {

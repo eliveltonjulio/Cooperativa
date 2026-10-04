@@ -121,9 +121,6 @@
 
             <!-- 32. Data de admissão -->
             <div class="col-md-4"><strong>Data de admissão:</strong> @(Model.DataAdmissao == default ? "Não informada" : Model.DataAdmissao.ToString("dd/MM/yyyy"))</div>
-
-            <!-- 32. Declara imposto de renda -->
-            <div class="col-md-4"><strong>Declara imposto de renda:</strong> @(Model.DeclaraImpostoRenda ? "Sim" : "Não")</div>
         </div>
 
         @if (!ehCooperado)

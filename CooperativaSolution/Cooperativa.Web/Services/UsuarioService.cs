@@ -50,6 +50,21 @@ public class UsuarioService
         return senhaValida ? usuario : null;
     }
 
+    /// <summary>
+    /// Verifica se existe um usuário cadastrado com o login ou e-mail informado.
+    /// </summary>
+    public async Task<bool> ExisteUsuarioAsync(string login)
+    {
+        if (string.IsNullOrWhiteSpace(login))
+        {
+            return false;
+        }
+
+        var termo = login.Trim().ToLower();
+        return await _context.UsuariosSistema
+            .AnyAsync(u => u.Login.ToLower() == termo || u.Email.ToLower() == termo);
+    }
+
     public async Task RegistrarUltimoAcesso(Guid usuarioId)
     {
         var usuario = await _context.UsuariosSistema.FindAsync(usuarioId);

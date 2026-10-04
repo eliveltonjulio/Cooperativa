@@ -1,6 +1,7 @@
 using Cooperativa.Data;
 using Cooperativa.Models;
 using Cooperativa.Web.Helpers;
+using Cooperativa.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,10 +10,12 @@ namespace Cooperativa.Web.Controllers;
 public class ContratosController : Controller
 {
     private readonly CooperativaDbContext _context;
+    private readonly MunicipiosService _municipios;
 
-    public ContratosController(CooperativaDbContext context)
+    public ContratosController(CooperativaDbContext context, MunicipiosService municipios)
     {
         _context = context;
+        _municipios = municipios;
     }
 
     public async Task<IActionResult> Index(string busca)
@@ -31,6 +34,15 @@ public class ContratosController : Controller
 
     public IActionResult Create() => View(new Contrato());
 
+    /// <summary>
+    /// Lista de municípios da UF usada pelo formulário para popular o select de cidade.
+    /// </summary>
+    [HttpGet]
+    public IActionResult Cidades(string uf)
+    {
+        return Json(_municipios.ObterCidades(uf));
+    }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(Contrato model)
@@ -39,6 +51,11 @@ public class ContratosController : Controller
         LimparErrosDeCamposFormatados();
 
         if (!TryValidateModel(model))
+        {
+            return View(model);
+        }
+
+        if (!ValidarCidadeDaUf(model))
         {
             return View(model);
         }
@@ -85,6 +102,13 @@ public class ContratosController : Controller
             return View(model);
         }
 
+        // Só valida a cidade quando o endereço foi alterado: contratos antigos podem
+        // ter cidades fora da base atual do IBGE e não devem ficar ineditáveis.
+        if ((contrato.Cidade != model.Cidade || contrato.Uf != model.Uf) && !ValidarCidadeDaUf(model))
+        {
+            return View(model);
+        }
+
         contrato.EmpresaNome = model.EmpresaNome;
         contrato.Cnpj = model.Cnpj;
         contrato.DataInicio = DateTimeHelper.NormalizeToUtc(model.DataInicio, DateTime.UtcNow);
@@ -103,6 +127,29 @@ public class ContratosController : Controller
         await _context.SaveChangesAsync();
         TempData["MensagemSucesso"] = "Contrato atualizado com sucesso.";
         return RedirectToAction(nameof(Index));
+    }
+
+    /// <summary>
+    /// Garante que a cidade informada pertence à lista de municípios da UF selecionada.
+    /// Retorna false e adiciona o erro no ModelState quando a cidade não é encontrada.
+    /// </summary>
+    private bool ValidarCidadeDaUf(Contrato model)
+    {
+        if (string.IsNullOrWhiteSpace(model.Cidade))
+        {
+            // Obrigatóriedade já é coberta pelas anotações de validação do modelo.
+            return true;
+        }
+
+        if (_municipios.CidadePertenceAUf(model.Cidade, model.Uf))
+        {
+            return true;
+        }
+
+        ModelState.AddModelError(
+            nameof(Contrato.Cidade),
+            "Selecione uma cidade da lista correspondente à UF informada.");
+        return false;
     }
 
     private static void NormalizarDados(Contrato model)

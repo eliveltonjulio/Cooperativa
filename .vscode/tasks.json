@@ -7,7 +7,8 @@
       "command": "dotnet",
       "args": [
         "build",
-        "${workspaceFolder}\\CooperativaSolution\\Cooperativa.Web\\Cooperativa.Web.csproj"
+        "${workspaceFolder}\\CooperativaSolution\\Cooperativa.Web\\Cooperativa.Web.csproj",
+        "-nodeReuse:false"
       ],
       "problemMatcher": "$msCompile",
       "group": "build",

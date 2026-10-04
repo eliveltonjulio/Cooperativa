@@ -1,0 +1,18 @@
+# Resultados de build
+[Bb]in/
+[Oo]bj/
+
+# Artefatos de verificação de build
+_buildcheck*/
+
+# Logs de execução
+*.log
+
+# Ambiente virtual Python (ferramentas auxiliares)
+.venv/
+
+# Arquivos de usuário / IDE
+*.user
+*.suo
+.vs/
+TestResults/

@@ -1,6 +1,7 @@
 using Cooperativa.Data;
 using Cooperativa.Models;
 using Cooperativa.Web.Services;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 var cwd = Directory.GetCurrentDirectory();
@@ -13,6 +14,10 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 var mvcBuilder = builder.Services.AddControllersWithViews(options =>
 {
     options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
+
+    // Somente usuários logados podem acessar o sistema.
+    // As actions de autenticação (login, MFA e redefinição de senha) devem declarar [AllowAnonymous].
+    options.Filters.Add(new AuthorizeFilter());
 });
 
 if (builder.Environment.IsDevelopment())
@@ -32,6 +37,7 @@ builder.Services.AddDbContext<CooperativaDbContext>(options =>
     options.UseNpgsql(connectionString));
 
 builder.Services.AddScoped<UsuarioService>();
+builder.Services.AddSingleton(_ => new MunicipiosService(MunicipiosService.LocalizarArquivoPadrao()));
 
 builder.Services.AddAuthentication("Cookies")
     .AddCookie("Cookies", options =>
@@ -332,6 +338,92 @@ using (var scope = app.Services.CreateScope())
                 EXECUTE 'DROP INDEX IF EXISTS "IX_JornadaContratual_empresa_id_funcao_id" CASCADE';
 
                 CREATE INDEX IF NOT EXISTS "IX_JornadaContratual_contrato_id_funcao_id" ON "JornadaContratual" (contrato_id, funcao_id);
+            END $$;
+
+            -- Unicidade de cadastro: nome de função único e uma remuneração por contrato/função.
+            DO $$
+            DECLARE
+                duplicada RECORD;
+                grupo RECORD;
+                nome_base text;
+                novo_nome text;
+                sufixo int;
+            BEGIN
+                IF to_regclass('"Funcoes"') IS NOT NULL THEN
+                    -- Normaliza o nome antes de validar a unicidade.
+                    UPDATE "Funcoes" SET "Nome" = 'Função' WHERE "Nome" IS NULL;
+                    UPDATE "Funcoes" SET "Nome" = btrim("Nome") WHERE "Nome" <> btrim("Nome");
+                    UPDATE "Funcoes" SET "Nome" = 'Função' WHERE btrim("Nome") = '';
+
+                    -- Renomeia os nomes repetidos (mantém o registro mais antigo) em vez de apagar cadastros.
+                    FOR duplicada IN (
+                        SELECT f."Id", f."Nome" AS nome_base
+                        FROM "Funcoes" f
+                        WHERE EXISTS (
+                            SELECT 1 FROM "Funcoes" f2
+                            WHERE lower(btrim(f2."Nome")) = lower(btrim(f."Nome"))
+                              AND f2."Id" < f."Id")
+                        ORDER BY f."Id"
+                    ) LOOP
+                        nome_base := left(coalesce(duplicada.nome_base, 'Função'), 110);
+                        sufixo := 2;
+
+                        LOOP
+                            novo_nome := nome_base || ' (' || sufixo || ')';
+                            EXIT WHEN NOT EXISTS (
+                                SELECT 1 FROM "Funcoes" f3
+                                WHERE lower(btrim(f3."Nome")) = lower(novo_nome));
+                            sufixo := sufixo + 1;
+                        END LOOP;
+
+                        UPDATE "Funcoes" SET "Nome" = novo_nome WHERE "Id" = duplicada."Id";
+                    END LOOP;
+
+                    IF EXISTS (
+                        SELECT 1 FROM pg_indexes
+                        WHERE schemaname = current_schema()
+                          AND indexname = 'IX_Funcoes_Nome'
+                          AND indexdef NOT LIKE 'UNIQUE%')
+                    THEN
+                        DROP INDEX "IX_Funcoes_Nome";
+                    END IF;
+
+                    -- Mesma regra do cadastro: ignora maiúsculas/minúsculas e espaços nas pontas.
+                    CREATE UNIQUE INDEX IF NOT EXISTS "IX_Funcoes_Nome"
+                        ON "Funcoes" (lower(btrim("Nome")));
+                END IF;
+
+                IF to_regclass('"Remuneracoes"') IS NOT NULL THEN
+                    -- Guarda apenas a vigência mais recente de cada contrato/função antes de criar o índice único.
+                    FOR grupo IN (
+                        SELECT "ContratoId", "FuncaoId"
+                        FROM "Remuneracoes"
+                        GROUP BY "ContratoId", "FuncaoId"
+                        HAVING count(*) > 1
+                    ) LOOP
+                        DELETE FROM "Remuneracoes" r
+                         WHERE r."ContratoId" = grupo."ContratoId"
+                           AND r."FuncaoId" = grupo."FuncaoId"
+                           AND r."Id" <> (
+                               SELECT r2."Id" FROM "Remuneracoes" r2
+                               WHERE r2."ContratoId" = grupo."ContratoId"
+                                 AND r2."FuncaoId" = grupo."FuncaoId"
+                               ORDER BY r2."DataInicio" DESC NULLS LAST, r2."Id"
+                               LIMIT 1);
+                    END LOOP;
+
+                    IF EXISTS (
+                        SELECT 1 FROM pg_indexes
+                        WHERE schemaname = current_schema()
+                          AND indexname = 'IX_Remuneracoes_ContratoId_FuncaoId'
+                          AND indexdef NOT LIKE 'UNIQUE%')
+                    THEN
+                        DROP INDEX "IX_Remuneracoes_ContratoId_FuncaoId";
+                    END IF;
+
+                    CREATE UNIQUE INDEX IF NOT EXISTS "IX_Remuneracoes_ContratoId_FuncaoId"
+                        ON "Remuneracoes" ("ContratoId", "FuncaoId");
+                END IF;
             END $$;
             """);
 

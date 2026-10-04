@@ -89,7 +89,7 @@ public class RemuneracoesController : Controller
 
         NormalizarValor(model);
         RemoverErrosDeNavegacao();
-        await ValidarSelecoesAsync(model);
+        await ValidarSelecoesAsync(model, remuneracao.Id);
 
         if (!ModelState.IsValid)
         {
@@ -187,7 +187,13 @@ public class RemuneracoesController : Controller
         model.Valor = valor;
     }
 
-    private async Task ValidarSelecoesAsync(Remuneracao model)
+    /// <summary>
+    /// Valida as seleções do formulário e a unicidade da relação contrato/função:
+    /// cada contrato pode ter uma única remuneração por função (ex.: o contrato 99999 não
+    /// pode ter duas remunerações para a função Analista).
+    /// </summary>
+    /// <param name="idExclusao">Id da remuneração que está sendo editada, para que ela mesma não seja considerada duplicada.</param>
+    private async Task ValidarSelecoesAsync(Remuneracao model, Guid? idExclusao = null)
     {
         if (model.ContratoId == Guid.Empty || !await _context.Contratos.AnyAsync(c => c.Id == model.ContratoId))
         {
@@ -198,6 +204,8 @@ public class RemuneracoesController : Controller
         {
             ModelState.AddModelError(nameof(model.FuncaoId), "Selecione uma função.");
         }
+
+        await ValidarUnicidadeContratoFuncaoAsync(model, idExclusao);
 
         if (model.DataInicio == default)
         {
@@ -213,6 +221,30 @@ public class RemuneracoesController : Controller
         if (model.TipoRemuneracao != "DIA" && model.TipoRemuneracao != "HORA")
         {
             ModelState.AddModelError(nameof(model.TipoRemuneracao), "Selecione o tipo de remuneração (dia ou hora).");
+        }
+    }
+
+    /// <summary>
+    /// A relação entre contrato e função é única: não pode haver duas remunerações
+    /// para o mesmo contrato e a mesma função.
+    /// </summary>
+    private async Task ValidarUnicidadeContratoFuncaoAsync(Remuneracao model, Guid? idExclusao)
+    {
+        if (model.ContratoId == Guid.Empty || model.FuncaoId == Guid.Empty) return;
+
+        var consulta = _context.Remuneracoes.AsQueryable();
+        if (idExclusao.HasValue)
+        {
+            consulta = consulta.Where(r => r.Id != idExclusao.Value);
+        }
+
+        var duplicada = await consulta.AnyAsync(r =>
+            r.ContratoId == model.ContratoId && r.FuncaoId == model.FuncaoId);
+
+        if (duplicada)
+        {
+            ModelState.AddModelError(string.Empty,
+                "Já existe uma remuneração cadastrada para este contrato e função.");
         }
     }
 }

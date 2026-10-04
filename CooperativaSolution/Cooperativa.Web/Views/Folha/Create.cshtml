@@ -20,7 +20,7 @@
             <label class="form-label">Cooperado</label>
             <select asp-for="CooperadoId" class="form-select" required>
                 <option value="">Selecione...</option>
-                @foreach (var cooperado in ViewBag.Cooperados as IEnumerable<Cooperativa.Models.Cooperado>)
+                @foreach (var cooperado in ViewBag.Cooperados as IEnumerable<Cooperativa.Models.Cooperado> ?? Enumerable.Empty<Cooperativa.Models.Cooperado>())
                 {
                     <option value="@cooperado.Id">@cooperado.Nome</option>
                 }

@@ -28,6 +28,11 @@ namespace Cooperativa.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // Nome de função é único no cadastro (o SQL de inicialização também garante o índice único).
+            modelBuilder.Entity<Funcao>()
+                .HasIndex(f => f.Nome)
+                .IsUnique();
+
             modelBuilder.Entity<TipoAdicional>(entity =>
             {
                 entity.ToTable("TipoAdicional");
@@ -225,6 +230,9 @@ namespace Cooperativa.Data
             {
                 entity.Property(r => r.DataInicio).HasColumnName("DataInicio").HasColumnType("date").IsRequired();
                 entity.Property(r => r.DataFim).HasColumnName("DataFim").HasColumnType("date");
+
+                // Relação única: um contrato não pode ter duas remunerações para a mesma função.
+                entity.HasIndex(r => new { r.ContratoId, r.FuncaoId }).IsUnique();
             });
 
             modelBuilder.Entity<Remuneracao>()

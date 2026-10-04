@@ -67,11 +67,6 @@
             <input asp-for="Bairro" class="form-control" />
             <span asp-validation-for="Bairro" class="text-danger"></span>
         </div>
-        <div class="col-md-5">
-            <label asp-for="Cidade" class="form-label"></label>
-            <input asp-for="Cidade" class="form-control" />
-            <span asp-validation-for="Cidade" class="text-danger"></span>
-        </div>
         <div class="col-md-2">
             <label asp-for="Uf" class="form-label"></label>
             <select asp-for="Uf" class="form-select">
@@ -82,6 +77,13 @@
                 }
             </select>
             <span asp-validation-for="Uf" class="text-danger"></span>
+        </div>
+        <div class="col-md-5">
+            <label asp-for="Cidade" class="form-label"></label>
+            <select asp-for="Cidade" class="form-select" data-valor-atual="@Model.Cidade" disabled>
+                <option value="">Selecione a UF</option>
+            </select>
+            <span asp-validation-for="Cidade" class="text-danger"></span>
         </div>
     </div>
 
@@ -169,5 +171,59 @@
         };
 
         aplicarMascaras();
+
+        // Cidade: lista de municípios filtrada pela UF selecionada.
+        const campoUf = document.getElementById('Uf');
+        const campoCidade = document.getElementById('Cidade');
+        const cidadesPorUf = {};
+        let sequenciaCarga = 0;
+
+        const montarOpcoesCidades = (cidades, cidadeSelecionada) => {
+            campoCidade.innerHTML = '';
+            const opcaoPadrao = new Option('Selecione a cidade', '');
+            campoCidade.append(opcaoPadrao);
+            cidades.forEach(cidade => campoCidade.append(new Option(cidade, cidade)));
+
+            if (cidadeSelecionada && cidades.includes(cidadeSelecionada)) {
+                campoCidade.value = cidadeSelecionada;
+            }
+        };
+
+        const carregarCidades = async (uf, cidadeSelecionada) => {
+            const sequencia = ++sequenciaCarga;
+
+            if (!uf) {
+                campoCidade.innerHTML = '';
+                campoCidade.append(new Option('Selecione a UF', ''));
+                campoCidade.disabled = true;
+                return;
+            }
+
+            try {
+                if (!cidadesPorUf[uf]) {
+                    const resposta = await fetch(`@Url.Action("Cidades")?uf=${encodeURIComponent(uf)}`);
+                    if (!resposta.ok) throw new Error(`Falha ao carregar cidades (${resposta.status}).`);
+                    cidadesPorUf[uf] = await resposta.json();
+                }
+
+                if (sequencia !== sequenciaCarga) return; // resposta obsoleta (UF trocada)
+                montarOpcoesCidades(cidadesPorUf[uf], cidadeSelecionada);
+                campoCidade.disabled = false;
+            } catch (erro) {
+                if (sequencia !== sequenciaCarga) return;
+                console.error(erro);
+                campoCidade.innerHTML = '';
+                campoCidade.append(new Option('Não foi possível carregar as cidades', ''));
+                campoCidade.disabled = true;
+            }
+        };
+
+        campoUf.addEventListener('change', () => {
+            // Trocar a UF invalida a cidade anteriormente escolhida.
+            carregarCidades(campoUf.value, '');
+        });
+
+        // Carga inicial: preserva a cidade já informada (edição ou reexibição pós-erro).
+        carregarCidades(campoUf.value, campoCidade.dataset.valorAtual || campoCidade.value);
     </script>
 }

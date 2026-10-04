@@ -37,6 +37,7 @@ public class FuncoesController : Controller
     public async Task<IActionResult> Create(Funcao model)
     {
         NormalizarDados(model);
+        await ValidarNomeUnicoAsync(model);
 
         if (!ModelState.IsValid) return View(model);
 
@@ -66,6 +67,11 @@ public class FuncoesController : Controller
         var funcao = await _context.Funcoes.FirstOrDefaultAsync(f => f.Id == id);
         if (funcao == null) return NotFound();
 
+        NormalizarDados(model);
+        await ValidarNomeUnicoAsync(model, id);
+
+        if (!ModelState.IsValid) return View(model);
+
         funcao.Nome = model.Nome;
         funcao.Descricao = model.Descricao;
         funcao.Cbo = model.Cbo;
@@ -80,6 +86,13 @@ public class FuncoesController : Controller
         if (funcao == null)
         {
             return NotFound();
+        }
+
+        if (await PossuiRemuneracoesAsync(id))
+        {
+            // A FK com Restrict impede a exclusão: avisar antes do usuário confirmar.
+            TempData["MensagemErro"] = MensagemFuncaoComRemuneracao;
+            return RedirectToAction(nameof(Index));
         }
 
         var model = new Cooperativa.Web.Models.DeleteConfirmationViewModel
@@ -100,10 +113,48 @@ public class FuncoesController : Controller
         var funcao = await _context.Funcoes.FirstOrDefaultAsync(f => f.Id == id);
         if (funcao == null) return NotFound();
 
+        if (await PossuiRemuneracoesAsync(id))
+        {
+            // Mesma proteção da validação do GET: a remuneração referência a função (FK Restrict).
+            TempData["MensagemErro"] = MensagemFuncaoComRemuneracao;
+            return RedirectToAction(nameof(Index));
+        }
+
         _context.Funcoes.Remove(funcao);
         await _context.SaveChangesAsync();
         TempData["MensagemSucesso"] = "Função excluída com sucesso.";
         return RedirectToAction(nameof(Index));
+    }
+
+    /// <summary>Mensagem exibida quando a função possui remunerações vinculadas (FK Restrict).</summary>
+    private const string MensagemFuncaoComRemuneracao =
+        "Não é possível excluir a função: existem remunerações vinculadas a ela. Exclua as remunerações antes.";
+
+    /// <summary>Verifica se alguma remuneração referencia a função (impede a exclusão pela FK Restrict).</summary>
+    private async Task<bool> PossuiRemuneracoesAsync(Guid funcaoId) =>
+        await _context.Remuneracoes.AnyAsync(r => r.FuncaoId == funcaoId);
+
+    /// <summary>
+    /// Cada função deve ter um nome único (ignorando maiúsculas/minúsculas e espaços nas pontas).
+    /// Em <paramref name="idExclusao"/> informe o id da função que está sendo editada para que
+    /// a própria função não seja considerada duplicada.
+    /// </summary>
+    private async Task ValidarNomeUnicoAsync(Funcao model, Guid? idExclusao = null)
+    {
+        var nome = (model.Nome ?? string.Empty).Trim();
+        if (nome.Length == 0) return;
+
+        var consulta = _context.Funcoes.AsQueryable();
+        if (idExclusao.HasValue)
+        {
+            consulta = consulta.Where(f => f.Id != idExclusao.Value);
+        }
+
+        var nomeJaCadastrado = await consulta.AnyAsync(f => f.Nome.Trim().ToLower() == nome.ToLower());
+        if (nomeJaCadastrado)
+        {
+            ModelState.AddModelError(nameof(Funcao.Nome), "Já existe uma função cadastrada com este nome.");
+        }
     }
 
     private static void NormalizarDados(Funcao model)

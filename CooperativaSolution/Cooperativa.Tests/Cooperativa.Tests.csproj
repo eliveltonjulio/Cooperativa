@@ -10,7 +10,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
     <PackageReference Include="xunit" Version="2.9.2" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.9.2">
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.0">
       <IncludeAssets>runtime;build;native;contentfiles;analyzers;buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
@@ -18,5 +18,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Cooperativa.Domain\Cooperativa.Domain.csproj" />
+    <ProjectReference Include="..\Cooperativa.Web\Cooperativa.Web.csproj" />
   </ItemGroup>
 </Project>

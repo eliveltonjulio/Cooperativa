@@ -87,7 +87,7 @@ public static class CalculadoraApuracaoPontoMensal
 
             var ehFeriado = feriadosSet.Contains(data);
             var diaSemJornada = ehFeriado || jornada == null || (jornada.DiasSemana & diaDaSemana) == 0;
-            var minutosNormaisDoRegistro = diaSemJornada
+            var minutosNormaisDoRegistro = jornada == null || diaSemJornada
                 ? 0
                 : Math.Min(minutosDiurnosTrabalhados, ObterMinutosDaJornada(jornada));
 
