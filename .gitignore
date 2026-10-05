@@ -7,6 +7,12 @@ _buildcheck*/
 
 # Logs de execução
 *.log
+*.err
+
+# Artefatos de publicação/deploy
+artifacts/
+publish/
+publish.zip
 
 # Ambiente virtual Python (ferramentas auxiliares)
 .venv/

@@ -21,12 +21,17 @@ RUN dotnet publish CooperativaSolution/Cooperativa.Web/Cooperativa.Web.csproj \
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 
-# Usuário não privilegiado
-RUN adduser --disabled-password --gecos "" --uid 10001 appuser && chown -R appuser /app
-USER appuser
+# As imagens .NET 8+ já incluem o usuário não-root "app" (UID 1654).
+# Cria o home para o Data Protection do ASP.NET conseguir gravar as chaves de cookie.
+RUN mkdir -p /home/app/.aspnet \
+    && chown -R 1654:1654 /home/app
+ENV HOME=/home/app
 
-COPY --from=build /app/publish .
+COPY --from=build --chown=1654:1654 /app/publish .
+
+USER $APP_UID
 
 EXPOSE 8080
 ENV ASPNETCORE_URLS=http://+:8080
 ENTRYPOINT ["dotnet", "Cooperativa.Web.dll"]
+
