@@ -49,10 +49,11 @@ if (-not $pgOk) {
 } else { Write-Host 'ja existe' }
 
 Step 'Criando banco de dados'
-$ErrorActionPreference = 'Continue'
-& $az postgres flexible-server db create --resource-group $Rg --server-name $PgServer --database-name $PgDb --output none
-$ErrorActionPreference = 'Stop'
-Write-Host 'OK (ou ja existia)'
+$dbOk = & $az postgres flexible-server db list -g $Rg -s $PgServer --query "[?name=='$PgDb']" -o tsv
+if (-not $dbOk) {
+    & $az postgres flexible-server db create -g $Rg -s $PgServer -n $PgDb --output none
+    Check 'postgres db create'
+} else { Write-Host 'ja existe' }
 
 Step 'Firewall PostgreSQL'
 $ErrorActionPreference = 'Continue'
