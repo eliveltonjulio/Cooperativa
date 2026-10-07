@@ -62,6 +62,21 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
+// Cabeçalhos encaminhados DEVEM ser processados no início do pipeline, antes de
+// qualquer middleware que dependa de Request.Scheme (HSTS, redirecionamento de
+// HTTPS, geração de URLs). A Vercel termina o TLS na borda e encaminha a requisição
+// internamente via HTTP, com X-Forwarded-For/X-Forwarded-Proto. KnownIPNetworks e
+// KnownProxies são limpos porque o padrão do ASP.NET Core só confia em proxies de
+// loopback — sem isso, os cabeçalhos do proxy da plataforma seriam ignorados e
+// Request.Scheme permaneceria "http" mesmo atrás do HTTPS da Vercel.
+var forwardedHeadersOptions = new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+};
+forwardedHeadersOptions.KnownIPNetworks.Clear();
+forwardedHeadersOptions.KnownProxies.Clear();
+app.UseForwardedHeaders(forwardedHeadersOptions);
+
 // Diagnóstico de implantação (aparece nos logs da Vercel/Azure): ajuda a
 // identificar rapidamente connection string não configurada e porta de escuta.
 var usaHostLocal = connectionString.Contains("Host=localhost", StringComparison.OrdinalIgnoreCase);
@@ -606,18 +621,16 @@ else
 {
     app.UseExceptionHandler("/Home/Error");
 
-    // HSTS força o navegador a usar HTTPS por 1 ano em produção.
+    // HSTS instrui o navegador a usar HTTPS nas próximas requisições (padrão:
+    // max-age=2592000 / 30 dias; aplicado apenas a hosts não-loopback).
     app.UseHsts();
-
-    // No App Service (e atrás de qualquer proxy reverso) o TLS termina na frente:
-    // processa X-Forwarded-For/X-Forwarded-Proto para que Request.Scheme seja https.
-    app.UseForwardedHeaders(new ForwardedHeadersOptions
-    {
-        ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-    });
 }
 
-app.UseHttpsRedirection(); // Força redirecionamento HTTP → HTTPS
+// Redireciona HTTP → HTTPS quando o esquema da requisição é http. Atrás de um
+// proxy como a Vercel isto é um no-op: o UseForwardedHeaders acima já torna
+// Request.Scheme = https (X-Forwarded-Proto), então nenhuma chamada é rejeitada
+// ou redirecionada por este middleware.
+app.UseHttpsRedirection();
 app.UseStaticFiles(); // Serve arquivos de wwwroot (e.g., /css/site.css, /js/site.js)
 
 app.UseRouting();
