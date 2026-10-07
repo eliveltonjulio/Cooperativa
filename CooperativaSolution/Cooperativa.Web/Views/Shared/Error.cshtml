@@ -6,6 +6,20 @@
 <h1 class="text-danger">Error.</h1>
 <h2 class="text-danger">An error occurred while processing your request.</h2>
 
+@if (Model.FalhaBanco)
+{
+    <div class="alert alert-warning mt-3">
+        <strong>Falha de conexão com o banco de dados.</strong>
+        A aplicação não conseguiu acessar o PostgreSQL configurado.
+        Se você administra este ambiente, verifique a variável de ambiente
+        <code>ConnectionStrings__DefaultConnection</code> em
+        <em>Settings → Environment Variables</em> da plataforma (formato:
+        <code>Host=...;Port=5432;Database=...;Username=...;Password=...;Ssl Mode=Require</code>)
+        — confirmada na variável, faça um novo deploy. Os detalhes técnicos
+        (host efetivo, stack trace) estão nos logs da aplicação.
+    </div>
+}
+
 @if (Model.ShowRequestId)
 {
     <p>

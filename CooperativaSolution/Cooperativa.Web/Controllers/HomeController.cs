@@ -36,9 +36,30 @@ public class HomeController : Controller
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
+        // Detecta se a exceção foi uma falha de banco (cadeia: InvalidOperationException
+        // → NpgsqlException → SocketException) para exibir orientação objetiva na página.
+        var excecao = HttpContext.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>()?.Error;
+        var falhaBanco = false;
+        for (var atual = excecao; atual is not null; atual = atual.InnerException)
+        {
+            if (atual is Npgsql.NpgsqlException or System.Net.Sockets.SocketException)
+            {
+                falhaBanco = true;
+                break;
+            }
+        }
+
+        // Registro auxiliar para diagnóstico nos logs da plataforma.
+        _logger.LogWarning(
+            "Página /Home/Error exibida (exceção disponível: {TemExcecao}; tipo: {Tipo}; falha de banco: {FalhaBanco}).",
+            excecao is not null,
+            excecao?.GetType().FullName ?? "-",
+            falhaBanco);
+
         return View(new ErrorViewModel
         {
-            RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+            RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
+            FalhaBanco = falhaBanco
         });
     }
 }
