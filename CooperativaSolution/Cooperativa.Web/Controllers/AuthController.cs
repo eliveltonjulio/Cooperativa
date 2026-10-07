@@ -1,4 +1,5 @@
 using Cooperativa.Models;
+using Cooperativa.Web.Filters;
 using Cooperativa.Web.Models;
 using Cooperativa.Web.Services;
 using Microsoft.AspNetCore.Authentication;
@@ -41,7 +42,7 @@ public class AuthController : Controller
 
     [HttpPost]
     [AllowAnonymous]
-    [ValidateAntiForgeryToken]
+    [ValidacaoAntiforgeryAmigavel]
     public async Task<IActionResult> Login(LoginViewModel model)
     {
         if (!ModelState.IsValid)
