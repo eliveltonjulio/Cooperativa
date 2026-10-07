@@ -1,9 +1,13 @@
 using Cooperativa.Data;
 using Cooperativa.Models;
 using Cooperativa.Web.Services;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
+using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
+using System.Xml.Linq;
 
 var cwd = Directory.GetCurrentDirectory();
 
@@ -60,7 +64,88 @@ builder.Services.AddAuthentication("Cookies")
 
 builder.Services.AddAuthorization();
 
+// ===== Data Protection: seleciona um diretório gravável para as chaves =====
+// Cookies de autenticação e tokens antiforgery (formulário de login) dependem do
+// Data Protection, que grava a chave mestra em disco. Em contêineres o diretório
+// padrão ($HOME/.aspnet) pode não ser gravável — quando isso acontece, TODAS as
+// páginas com formulário lançam exceção e caem na página /Home/Error. Testa os
+// diretórios candidatos e registra explicitamente o primeiro gravável; se nenhum
+// for gravável, usa repositório em memória (chaves perdem-se a cada reinício, mas
+// a aplicação continua respondendo).
+var diretoriosCandidatos = new List<string>();
+var home = Environment.GetEnvironmentVariable("HOME");
+if (!string.IsNullOrWhiteSpace(home))
+{
+    diretoriosCandidatos.Add(Path.Combine(home, ".aspnet", "DataProtection-Keys"));
+}
+
+var pastaDados = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+if (!string.IsNullOrWhiteSpace(pastaDados))
+{
+    diretoriosCandidatos.Add(Path.Combine(pastaDados, "ASP.NET", "DataProtection-Keys"));
+}
+
+diretoriosCandidatos.Add(Path.Combine(Path.GetTempPath(), ".aspnet", "DataProtection-Keys"));
+diretoriosCandidatos.Add(Path.Combine(AppContext.BaseDirectory, ".aspnet-keys"));
+
+string? diretorioChaves = null;
+var falhasChaves = new List<string>();
+foreach (var candidato in diretoriosCandidatos.Distinct(StringComparer.OrdinalIgnoreCase))
+{
+    try
+    {
+        Directory.CreateDirectory(candidato);
+        var sonda = Path.Combine(candidato, $".sonda-{Guid.NewGuid():N}.tmp");
+        File.WriteAllText(sonda, "ok");
+        File.Delete(sonda);
+        diretorioChaves = candidato;
+        break;
+    }
+    catch (Exception ex)
+    {
+        falhasChaves.Add($"{candidato} ({ex.GetType().Name}: {ex.Message})");
+    }
+}
+
+if (diretorioChaves is not null)
+{
+    builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(diretorioChaves));
+}
+else
+{
+    // Último recurso: repositório em memória, sem nenhuma gravação em disco.
+    builder.Services.AddDataProtection();
+    builder.Services.Configure<KeyManagementOptions>(opcoes =>
+        opcoes.XmlRepository = new RepositorioChavesEmMemoria());
+}
+
 var app = builder.Build();
+
+// Pré-voo do Data Protection — visível nos logs da Vercel/Azure.
+foreach (var falha in falhasChaves)
+{
+    app.Logger.LogWarning("Diretório de chaves do Data Protection recusado: {Falha}", falha);
+}
+
+if (diretorioChaves is not null)
+{
+    app.Logger.LogInformation("Chaves do Data Protection graváveis em {Diretorio}.", diretorioChaves);
+}
+else
+{
+    app.Logger.LogCritical(
+        "Nenhum diretório gravável para as chaves do Data Protection; usando repositório EM MEMÓRIA. " +
+        "Sessões serão perdidas a cada reinício. Diretórios testados: {Diretorios}",
+        string.Join("; ", diretoriosCandidatos));
+}
+
+var caminhoMunicipios = MunicipiosService.LocalizarArquivoPadrao();
+if (!File.Exists(caminhoMunicipios))
+{
+    app.Logger.LogWarning(
+        "Arquivo de municípios não encontrado em {Caminho}; as telas que usam municípios falharão.",
+        caminhoMunicipios);
+}
 
 // Cabeçalhos encaminhados DEVEM ser processados no início do pipeline, antes de
 // qualquer middleware que dependa de Request.Scheme (HSTS, redirecionamento de
@@ -644,3 +729,29 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
+// Repositório de chaves do Data Protection em memória — usado como último recurso
+// quando o contêiner não possui nenhum diretório gravável. As chaves valem apenas
+// durante a vida do processo (sessões invalidadas a cada reinício), mas a
+// aplicação continua respondendo em vez de falhar em páginas com formulário.
+internal sealed class RepositorioChavesEmMemoria : IXmlRepository
+{
+    private readonly List<XElement> _elementos = new();
+    private readonly object _trava = new();
+
+    public IReadOnlyCollection<XElement> GetAllElements()
+    {
+        lock (_trava)
+        {
+            return _elementos.ToList();
+        }
+    }
+
+    public void StoreElement(XElement element, string? name)
+    {
+        lock (_trava)
+        {
+            _elementos.Add(element);
+        }
+    }
+}
