@@ -12,6 +12,16 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
     Args = args,
 });
 
+// Plataformas de container como a Vercel não usam porta fixa: a porta efetiva é
+// informada pela variável de ambiente PORT. Quando presente, o Kestrel escuta em
+// 0.0.0.0 nela. Quando ausente (dev local, App Service/Container Apps da Azure),
+// vale o padrão do Kestrel ou a variável ASPNETCORE_URLS definida no Dockerfile.
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrWhiteSpace(port))
+{
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+}
+
 var mvcBuilder = builder.Services.AddControllersWithViews(options =>
 {
     options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
