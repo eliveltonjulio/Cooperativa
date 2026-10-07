@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Azure.Storage.Blobs;
 using Npgsql;
 using System.Xml.Linq;
 
@@ -73,6 +74,50 @@ builder.Services.AddAuthorization();
 // diretórios candidatos e registra explicitamente o primeiro gravável; se nenhum
 // for gravável, usa repositório em memória (chaves perdem-se a cada reinício, mas
 // a aplicação continua respondendo).
+// Opcional: persistir as chaves em Azure Blob Storage quando
+// DataProtection__AzureBlob__ConnectionString (+Container/Blob) ou
+// DataProtection__AzureBlob__SasUri está definido. Chaves fora do contêiner
+// sobrevivem a reinícios/scale da Vercel — eliminando a causa raiz dos 400 de
+// antiforgery e dos logouts a cada container novo.
+var sasUriChaves = builder.Configuration["DataProtection:AzureBlob:SasUri"];
+var conexaoChaves = builder.Configuration["DataProtection:AzureBlob:ConnectionString"];
+var containerChaves = builder.Configuration["DataProtection:AzureBlob:Container"] ?? "cooperativa-dp-keys";
+var blobChaves = builder.Configuration["DataProtection:AzureBlob:Blob"] ?? "keys.xml";
+
+string? origemChavesAzureBlob = null;
+string? falhaAzureBlob = null;
+
+if (!string.IsNullOrWhiteSpace(conexaoChaves))
+{
+    // Caminho recomendado: connection string da conta — o container é criado se faltar.
+    try
+    {
+        new BlobContainerClient(conexaoChaves, containerChaves).CreateIfNotExists();
+        builder.Services.AddDataProtection()
+            .PersistKeysToAzureBlobStorage(conexaoChaves, containerChaves, blobChaves);
+        origemChavesAzureBlob = $"Azure Blob Storage (container '{containerChaves}', blob '{blobChaves}')";
+    }
+    catch (Exception ex)
+    {
+        // Nunca registrar credenciais/URIs no log — apenas tipo e texto da exceção.
+        falhaAzureBlob = $"{ex.GetType().Name}: {ex.Message}";
+    }
+}
+else if (!string.IsNullOrWhiteSpace(sasUriChaves))
+{
+    // URI SAS apontando para o ARQUIVO de chaves (…/container/keys.xml?sv=…).
+    // O container deve existir previamente (mesma regra do pacote Azure).
+    try
+    {
+        builder.Services.AddDataProtection().PersistKeysToAzureBlobStorage(new Uri(sasUriChaves));
+        origemChavesAzureBlob = "Azure Blob Storage (URI SAS do arquivo de chaves)";
+    }
+    catch (Exception ex)
+    {
+        falhaAzureBlob = $"{ex.GetType().Name}: {ex.Message}";
+    }
+}
+
 var diretoriosCandidatos = new List<string>();
 var home = Environment.GetEnvironmentVariable("HOME");
 if (!string.IsNullOrWhiteSpace(home))
@@ -91,44 +136,62 @@ diretoriosCandidatos.Add(Path.Combine(AppContext.BaseDirectory, ".aspnet-keys"))
 
 string? diretorioChaves = null;
 var falhasChaves = new List<string>();
-foreach (var candidato in diretoriosCandidatos.Distinct(StringComparer.OrdinalIgnoreCase))
-{
-    try
-    {
-        Directory.CreateDirectory(candidato);
-        var sonda = Path.Combine(candidato, $".sonda-{Guid.NewGuid():N}.tmp");
-        File.WriteAllText(sonda, "ok");
-        File.Delete(sonda);
-        diretorioChaves = candidato;
-        break;
-    }
-    catch (Exception ex)
-    {
-        falhasChaves.Add($"{candidato} ({ex.GetType().Name}: {ex.Message})");
-    }
-}
 
-if (diretorioChaves is not null)
+// Armazenamento local só entra em cena se o Azure Blob não estiver configurado
+// (ou tiver falhado) — comportamento original preservado.
+if (origemChavesAzureBlob is null)
 {
-    builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(diretorioChaves));
-}
-else
-{
-    // Último recurso: repositório em memória, sem nenhuma gravação em disco.
-    builder.Services.AddDataProtection();
-    builder.Services.Configure<KeyManagementOptions>(opcoes =>
-        opcoes.XmlRepository = new RepositorioChavesEmMemoria());
+    foreach (var candidato in diretoriosCandidatos.Distinct(StringComparer.OrdinalIgnoreCase))
+    {
+        try
+        {
+            Directory.CreateDirectory(candidato);
+            var sonda = Path.Combine(candidato, $".sonda-{Guid.NewGuid():N}.tmp");
+            File.WriteAllText(sonda, "ok");
+            File.Delete(sonda);
+            diretorioChaves = candidato;
+            break;
+        }
+        catch (Exception ex)
+        {
+            falhasChaves.Add($"{candidato} ({ex.GetType().Name}: {ex.Message})");
+        }
+    }
+
+    if (diretorioChaves is not null)
+    {
+        builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(diretorioChaves));
+    }
+    else
+    {
+        // Último recurso: repositório em memória, sem nenhuma gravação em disco.
+        builder.Services.AddDataProtection();
+        builder.Services.Configure<KeyManagementOptions>(opcoes =>
+            opcoes.XmlRepository = new RepositorioChavesEmMemoria());
+    }
 }
 
 var app = builder.Build();
 
 // Pré-voo do Data Protection — visível nos logs da Vercel/Azure.
+if (falhaAzureBlob is not null)
+{
+    app.Logger.LogError(
+        "Falha ao persistir as chaves do Data Protection em Azure Blob: {Falha}. " +
+        "Verifique container/SAS/credenciais; usando armazenamento local (chaves efêmeras).",
+        falhaAzureBlob);
+}
+
 foreach (var falha in falhasChaves)
 {
     app.Logger.LogWarning("Diretório de chaves do Data Protection recusado: {Falha}", falha);
 }
 
-if (diretorioChaves is not null)
+if (origemChavesAzureBlob is not null)
+{
+    app.Logger.LogInformation("Chaves do Data Protection persistidas em {Origem}.", origemChavesAzureBlob);
+}
+else if (diretorioChaves is not null)
 {
     app.Logger.LogInformation("Chaves do Data Protection graváveis em {Diretorio}.", diretorioChaves);
 }
