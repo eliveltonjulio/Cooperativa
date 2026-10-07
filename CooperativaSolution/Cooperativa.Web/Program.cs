@@ -62,6 +62,24 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
+// Diagnóstico de implantação (aparece nos logs da Vercel/Azure): ajuda a
+// identificar rapidamente connection string não configurada e porta de escuta.
+var usaHostLocal = connectionString.Contains("Host=localhost", StringComparison.OrdinalIgnoreCase);
+app.Logger.LogInformation(
+    "Ambiente: {Environment}; PORT: {Port}; Connection string: {Origem}.",
+    app.Environment.EnvironmentName,
+    Environment.GetEnvironmentVariable("PORT") ?? "(não definida)",
+    usaHostLocal
+        ? "padrão do appsettings.json (Host=localhost) — defina ConnectionStrings__DefaultConnection em ambiente de contêiner"
+        : "definida fora do appsettings padrão (variável de ambiente ou appsettings)");
+
+if (usaHostLocal)
+{
+    app.Logger.LogWarning(
+        "A connection string 'DefaultConnection' aponta para localhost. Em contêiner (Vercel/Azure) " +
+        "defina a variável de ambiente ConnectionStrings__DefaultConnection com um PostgreSQL acessível.");
+}
+
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<CooperativaDbContext>();
