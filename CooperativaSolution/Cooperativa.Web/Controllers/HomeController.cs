@@ -53,18 +53,23 @@ public class HomeController : Controller
             }
         }
 
+        // Descreve a situação da connection string para exibir na página E nos
+        // logs — assim qualquer trecho de log colado em suporte já traz o motivo.
+        var motivo = falhaBanco ? DescreverSituacaoConnectionStrings(_configuracao) : null;
+
         // Registro auxiliar para diagnóstico nos logs da plataforma.
         _logger.LogWarning(
-            "Página /Home/Error exibida (exceção disponível: {TemExcecao}; tipo: {Tipo}; falha de banco: {FalhaBanco}).",
+            "Página /Home/Error exibida (exceção disponível: {TemExcecao}; tipo: {Tipo}; falha de banco: {FalhaBanco}). {Situacao}",
             excecao is not null,
             excecao?.GetType().FullName ?? "-",
-            falhaBanco);
+            falhaBanco,
+            motivo ?? "-");
 
         return View(new ErrorViewModel
         {
             RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
             FalhaBanco = falhaBanco,
-            MotivoConnectionStrings = falhaBanco ? DescreverSituacaoConnectionStrings(_configuracao) : null
+            MotivoConnectionStrings = motivo
         });
     }
 
