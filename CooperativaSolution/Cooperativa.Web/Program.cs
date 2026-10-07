@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using System.Xml.Linq;
 
 var cwd = Directory.GetCurrentDirectory();
@@ -201,11 +202,65 @@ app.Logger.LogInformation(
         ? "padrão do appsettings.json (Host=localhost) — defina ConnectionStrings__DefaultConnection em ambiente de contêiner"
         : "definida fora do appsettings padrão (variável de ambiente ou appsettings)");
 
+// Identidade do banco efetivo (nunca inclui a senha) — confirma nos logs qual
+// servidor está de fato sendo usado.
+try
+{
+    var bancoEfetivo = new NpgsqlConnectionStringBuilder(connectionString);
+    app.Logger.LogInformation(
+        "Banco efetivo: Host={Host}; Porta={Porta}; Database={Database}; Username={Username}; SSL={Ssl}.",
+        bancoEfetivo.Host, bancoEfetivo.Port, bancoEfetivo.Database, bancoEfetivo.Username, bancoEfetivo.SslMode);
+}
+catch (Exception ex)
+{
+    app.Logger.LogWarning("A connection string efetiva não pôde ser interpretada: {Erro}", ex.Message);
+}
+
 if (usaHostLocal)
 {
-    app.Logger.LogWarning(
-        "A connection string 'DefaultConnection' aponta para localhost. Em contêiner (Vercel/Azure) " +
-        "defina a variável de ambiente ConnectionStrings__DefaultConnection com um PostgreSQL acessível.");
+    // Diagnóstico fino para distinguir, nos logs, os casos de falha: variável
+    // ausente, nome de variável errado, valor errado ou variável não carregada
+    // no deploy (escopo de ambiente errado / esquecer o redeploy). Só é crítico
+    // em contêiner (PORT definida); no dev local vira aviso comum.
+    var emConteiner = !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("PORT"));
+    var nivel = emConteiner ? LogLevel.Critical : LogLevel.Warning;
+
+    var valorEnv = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
+        ?? Environment.GetEnvironmentVariable("ConnectionStrings:DefaultConnection");
+
+    string diagnostico;
+    if (valorEnv is null)
+    {
+        // Procura variáveis com nome parecido (provável erro de digitação/separador).
+        var semelhantes = Environment.GetEnvironmentVariables().Keys
+            .OfType<string>()
+            .Where(chave => chave.Contains("connection", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+        diagnostico = semelhantes.Count > 0
+            ? $"ConnectionStrings__DefaultConnection NÃO está definida, mas existem variáveis parecidas (provável erro de nome): {string.Join(", ", semelhantes)}."
+            : "ConnectionStrings__DefaultConnection NÃO está definida nas Environment Variables.";
+    }
+    else
+    {
+        string? hostDaVariavel = null;
+        try
+        {
+            hostDaVariavel = new NpgsqlConnectionStringBuilder(valorEnv).Host;
+        }
+        catch
+        {
+            // Valor malformado — tratado na mensagem abaixo.
+        }
+
+        diagnostico = hostDaVariavel is not null && hostDaVariavel.Contains("localhost", StringComparison.OrdinalIgnoreCase)
+            ? "ConnectionStrings__DefaultConnection está definida, mas o VALOR contém Host=localhost — corrija o valor da variável."
+            : $"ConnectionStrings__DefaultConnection existe (Host={hostDaVariavel ?? "?"}) mas NÃO surtiu efeito neste deploy — verifique se está marcada para o ambiente Production e faça um novo deploy.";
+    }
+
+    app.Logger.Log(
+        nivel,
+        "{Diagnostico} O valor efetivo vem do appsettings.json (Host=localhost); aponte-a para um PostgreSQL acessível externamente.",
+        diagnostico);
 }
 
 using (var scope = app.Services.CreateScope())
