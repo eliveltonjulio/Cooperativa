@@ -626,11 +626,11 @@ else
     app.UseHsts();
 }
 
-// Redireciona HTTP → HTTPS quando o esquema da requisição é http. Atrás de um
-// proxy como a Vercel isto é um no-op: o UseForwardedHeaders acima já torna
-// Request.Scheme = https (X-Forwarded-Proto), então nenhuma chamada é rejeitada
-// ou redirecionada por este middleware.
-app.UseHttpsRedirection();
+// NOTA: app.UseHttpsRedirection() foi removido deliberadamente. A Vercel gerencia
+// e força o HTTPS na borda da rede; dentro do contêiner a requisição chega via HTTP
+// e o UseForwardedHeaders no início do pipeline já define Request.Scheme = https a
+// partir do X-Forwarded-Proto. Manter o redirecionamento aqui só adiciona um ponto
+// de falha desnecessário atrás do proxy.
 app.UseStaticFiles(); // Serve arquivos de wwwroot (e.g., /css/site.css, /js/site.js)
 
 app.UseRouting();
