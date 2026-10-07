@@ -162,6 +162,34 @@ forwardedHeadersOptions.KnownIPNetworks.Clear();
 forwardedHeadersOptions.KnownProxies.Clear();
 app.UseForwardedHeaders(forwardedHeadersOptions);
 
+// Observabilidade de HTTP 400: o framework às vezes retorna Bad Request de forma
+// silenciosa (ex.: validação antiforgery falhando com cookie de uma era antiga de
+// chave do Data Protection), sem nenhuma linha nos logs. Este middleware registra
+// cada 400 com o caminho e indícios para diagnóstico (Vercel Project Logs).
+app.Use(async (context, proximo) =>
+{
+    await proximo(context);
+
+    if (context.Response.StatusCode == StatusCodes.Status400BadRequest)
+    {
+        var cookieAntiforgery = context.Request.Cookies.Keys
+            .FirstOrDefault(chave => chave.StartsWith(".AspNetCore.Antiforgery", StringComparison.Ordinal));
+
+        context.RequestServices
+            .GetRequiredService<ILoggerFactory>()
+            .CreateLogger("Requisicao400")
+            .LogWarning(
+                "HTTP 400 em {Method} {Path}{Query} — cookie antiforgery: {CookieAntiforgery}; remote IP: {IP}; X-Forwarded-For: {ForwardedFor}; User-Agent: {UA}",
+                context.Request.Method,
+                context.Request.Path,
+                context.Request.QueryString,
+                cookieAntiforgery is null ? "ausente" : "presente",
+                context.Connection.RemoteIpAddress,
+                context.Request.Headers["X-Forwarded-For"].ToString(),
+                context.Request.Headers.UserAgent.ToString());
+    }
+});
+
 // Diagnóstico de implantação (aparece nos logs da Vercel/Azure): ajuda a
 // identificar rapidamente connection string não configurada e porta de escuta.
 var usaHostLocal = connectionString.Contains("Host=localhost", StringComparison.OrdinalIgnoreCase);
