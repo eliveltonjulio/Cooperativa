@@ -11,6 +11,10 @@
     <div class="alert alert-warning mt-3">
         <strong>Falha de conexão com o banco de dados.</strong>
         A aplicação não conseguiu acessar o PostgreSQL configurado.
+        @if (!string.IsNullOrEmpty(Model.MotivoConnectionStrings))
+        {
+            <p class="mb-1 mt-2"><em>@Model.MotivoConnectionStrings</em></p>
+        }
         Se você administra este ambiente, verifique a variável de ambiente
         <code>ConnectionStrings__DefaultConnection</code> em
         <em>Settings → Environment Variables</em> da plataforma (formato:
