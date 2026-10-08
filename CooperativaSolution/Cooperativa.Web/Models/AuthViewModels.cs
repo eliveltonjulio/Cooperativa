@@ -39,3 +39,23 @@ public class RedefinirSenhaViewModel
     [Display(Name = "Confirmar nova senha")]
     public string ConfirmarNovaSenha { get; set; } = string.Empty;
 }
+
+public class AlterarSenhaViewModel
+{
+    [Required(ErrorMessage = "Informe a senha atual.")]
+    [DataType(DataType.Password)]
+    [Display(Name = "Senha atual")]
+    public string SenhaAtual { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Informe a nova senha.")]
+    [StringLength(100, MinimumLength = 6, ErrorMessage = "A senha deve ter no mínimo 6 caracteres.")]
+    [DataType(DataType.Password)]
+    [Display(Name = "Nova senha")]
+    public string NovaSenha { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Confirme a nova senha.")]
+    [DataType(DataType.Password)]
+    [Compare(nameof(NovaSenha), ErrorMessage = "As senhas não conferem.")]
+    [Display(Name = "Confirmar nova senha")]
+    public string ConfirmarNovaSenha { get; set; } = string.Empty;
+}

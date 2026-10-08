@@ -200,6 +200,50 @@ public class AuthController : Controller
         return View(model);
     }
 
+    /// <summary>
+    /// Formulário para o usuário autenticado alterar a própria senha.
+    /// Sem [AllowAnonymous]: protegido pelo filtro global de autorização.
+    /// </summary>
+    [HttpGet]
+    public IActionResult AlterarSenha()
+    {
+        return View(new AlterarSenhaViewModel());
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AlterarSenha(AlterarSenhaViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        var idClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!Guid.TryParse(idClaim, out var usuarioId))
+        {
+            TempData["MensagemErro"] = "Não foi possível identificar o usuário autenticado. Entre novamente.";
+            return RedirectToAction(nameof(Login));
+        }
+
+        var resultado = await _usuarioService.AlterarSenhaAsync(usuarioId, model.SenhaAtual, model.NovaSenha);
+
+        if (resultado == AlteracaoSenhaResultado.SenhaAtualIncorreta)
+        {
+            ModelState.AddModelError(nameof(model.SenhaAtual), "A senha atual está incorreta.");
+            return View(model);
+        }
+
+        if (resultado == AlteracaoSenhaResultado.UsuarioNaoEncontrado)
+        {
+            TempData["MensagemErro"] = "Usuário não encontrado ou conta inativa. Entre novamente.";
+            return RedirectToAction(nameof(Login));
+        }
+
+        TempData["MensagemSucesso"] = "Senha alterada com sucesso! Ela já vale para o próximo acesso.";
+        return RedirectToAction(nameof(AlterarSenha));
+    }
+
     [HttpPost]
     [HttpGet]
     public async Task<IActionResult> Logout()

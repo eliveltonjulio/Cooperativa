@@ -151,4 +151,50 @@ public class UsuarioService
         await _context.SaveChangesAsync();
         return true;
     }
+
+    /// <summary>
+    /// Permite ao próprio usuário alterar sua senha, validando a senha atual.
+    /// Mantém o fallback de compatibilidade para senhas legadas em texto puro.
+    /// </summary>
+    public async Task<AlteracaoSenhaResultado> AlterarSenhaAsync(Guid usuarioId, string senhaAtual, string novaSenha)
+    {
+        if (usuarioId == Guid.Empty || string.IsNullOrWhiteSpace(senhaAtual) || string.IsNullOrWhiteSpace(novaSenha))
+        {
+            return AlteracaoSenhaResultado.UsuarioNaoEncontrado;
+        }
+
+        var usuario = await _context.UsuariosSistema.FindAsync(usuarioId);
+        if (usuario == null || !usuario.Ativo)
+        {
+            return AlteracaoSenhaResultado.UsuarioNaoEncontrado;
+        }
+
+        bool senhaAtualValida;
+        try
+        {
+            senhaAtualValida = BCrypt.Net.BCrypt.Verify(senhaAtual, usuario.Senha);
+        }
+        catch
+        {
+            // Fallback para senhas legadas armazenadas em texto puro.
+            senhaAtualValida = usuario.Senha == senhaAtual;
+        }
+
+        if (!senhaAtualValida)
+        {
+            return AlteracaoSenhaResultado.SenhaAtualIncorreta;
+        }
+
+        usuario.Senha = BCrypt.Net.BCrypt.HashPassword(novaSenha);
+        await _context.SaveChangesAsync();
+        return AlteracaoSenhaResultado.Sucesso;
+    }
+}
+
+/// <summary>Resultado da alteração de senha pelo próprio usuário.</summary>
+public enum AlteracaoSenhaResultado
+{
+    Sucesso,
+    SenhaAtualIncorreta,
+    UsuarioNaoEncontrado
 }
