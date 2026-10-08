@@ -87,10 +87,11 @@
         var cooperadoSelect = document.getElementById('CooperadoId');
         var dataInput = document.getElementById('dataPonto');
 
-        function carregarCooperados() {
+        function carregarCooperados(selecaoParaRestaurar) {
             var contratoValor = contratoSelect.value;
             var data = dataInput.value;
-            var valorInicial = cooperadoSelect.dataset.valorInicial || '';
+            // Valor a re-selecionar após reconstruir a lista; vazio = "Selecione...".
+            var restaurar = selecaoParaRestaurar || '';
 
             cooperadoSelect.innerHTML = '';
             cooperadoSelect.appendChild(new Option('Selecione...', ''));
@@ -123,25 +124,27 @@
                     : 'Nenhum cooperado alocado neste contrato';
             } else {
                 cooperadoSelect.disabled = false;
-                if (valorInicial && ids.indexOf(valorInicial) !== -1) {
-                    cooperadoSelect.value = valorInicial;
+                if (restaurar && ids.indexOf(restaurar) !== -1) {
+                    cooperadoSelect.value = restaurar;
                 }
             }
         }
 
         contratoSelect.addEventListener('change', function () {
-            delete cooperadoSelect.dataset.valorInicial;
-            carregarCooperados();
+            // Troca de contrato exige selecionar o cooperado novamente (listas diferentes).
+            carregarCooperados('');
         });
 
         dataInput.addEventListener('change', function () {
-            carregarCooperados();
+            // Preserva o cooperado já escolhido quando a data muda — antes desta
+            // mudança a seleção era descartada e o usuário precisava escolher de novo.
+            carregarCooperados(cooperadoSelect.value);
         });
 
         if (contratoSelect.dataset.valorInicial && contratoSelect.querySelector('option[value="' + contratoSelect.dataset.valorInicial + '"]')) {
             contratoSelect.value = contratoSelect.dataset.valorInicial;
         }
-        carregarCooperados();
+        carregarCooperados(cooperadoSelect.dataset.valorInicial || cooperadoSelect.value);
     })();
 </script>
 
