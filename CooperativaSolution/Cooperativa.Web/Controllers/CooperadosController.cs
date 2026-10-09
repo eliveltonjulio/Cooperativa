@@ -137,8 +137,13 @@ public class CooperadosController : Controller
         var ehCooperado = User.IsInRole("Cooperado") && !User.IsInRole("Administrador") && !User.IsInRole("Admin") && !User.IsInRole("Coordenador") && !User.IsInRole("Gestor");
         if (ehCooperado)
         {
-            var cooperadoIdStr = User.FindFirst("CooperadoId")?.Value;
-            if (Guid.TryParse(cooperadoIdStr, out var meuId) && meuId != id)
+            if (!Guid.TryParse(User.FindFirst("CooperadoId")?.Value, out var meuId))
+            {
+                TempData["MensagemErro"] = "Sua conta não está vinculada a um cadastro de cooperado.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            if (meuId != id)
             {
                 TempData["MensagemErro"] = "Você só pode visualizar o seu próprio cadastro.";
                 return RedirectToAction(nameof(Details), new { id = meuId });

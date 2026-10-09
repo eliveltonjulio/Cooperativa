@@ -15,6 +15,8 @@
         var nomeUsuario = User.FindFirst("NomeCompleto")?.Value ?? User.Identity?.Name ?? "Visitante";
         var perfilExibicao = User.FindFirst("PerfilExibicao")?.Value ?? (ehAdmin ? "Administrador" : ehCoordenador ? "Coordenador" : "Cooperado");
         var cooperadoIdClaim = User.FindFirst("CooperadoId")?.Value;
+        // Cooperado puro (sem papel administrativo): acesso restrito ao próprio cadastro/ponto.
+        var ehCooperadoRestrito = ehCooperado && !ehAdmin && !ehCoordenador;
     }
     <div class="d-flex">
         <aside class="bg-dark text-white p-3" style="min-height:100vh; width:260px;">
@@ -27,8 +29,15 @@
             </div>
             <ul class="nav flex-column gap-1">
                 <li class="nav-item"><a class="nav-link text-white rounded px-3 py-2" asp-controller="Home" asp-action="Index"><i class="bi bi-house-door me-2"></i>Página Principal</a></li>
-                <li class="nav-item"><a class="nav-link text-white rounded px-3 py-2" asp-controller="Cooperados" asp-action="Index"><i class="bi bi-people me-2"></i>Cooperados</a></li>
-                <li class="nav-item"><a class="nav-link text-white rounded px-3 py-2" asp-controller="Contratos" asp-action="Index"><i class="bi bi-file-earmark-text me-2"></i>Contratos</a></li>
+                @if (!ehCooperadoRestrito)
+                {
+                    <li class="nav-item"><a class="nav-link text-white rounded px-3 py-2" asp-controller="Cooperados" asp-action="Index"><i class="bi bi-people me-2"></i>Cooperados</a></li>
+                    <li class="nav-item"><a class="nav-link text-white rounded px-3 py-2" asp-controller="Contratos" asp-action="Index"><i class="bi bi-file-earmark-text me-2"></i>Contratos</a></li>
+                }
+                else if (!string.IsNullOrWhiteSpace(cooperadoIdClaim))
+                {
+                    <li class="nav-item"><a class="nav-link text-white rounded px-3 py-2" asp-controller="Cooperados" asp-action="Details" asp-route-id="@cooperadoIdClaim"><i class="bi bi-person-vcard me-2"></i>Meu Cadastro</a></li>
+                }
 
                 @if (ehAdmin || ehCoordenador)
                 {

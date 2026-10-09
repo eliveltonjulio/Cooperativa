@@ -36,6 +36,11 @@ namespace Cooperativa.Web.Controllers
             {
                 registros = registros.Where(r => r.CooperadoId == meuCooperadoId);
             }
+            else
+            {
+                // Sem claim CooperadoId válido não há ponto a exibir — nunca listar os de terceiros.
+                registros = registros.Where(r => false);
+            }
         }
 
         var ehCoordenador = User.IsInRole("Coordenador") || User.IsInRole("Gestor");
@@ -189,7 +194,13 @@ namespace Cooperativa.Web.Controllers
         if (ehCooperado)
         {
             var cooperadoIdStr = User.FindFirst("CooperadoId")?.Value;
-            if (Guid.TryParse(cooperadoIdStr, out var meuCooperadoId) && registro.CooperadoId != meuCooperadoId)
+            if (!Guid.TryParse(cooperadoIdStr, out var meuCooperadoId))
+            {
+                TempData["MensagemErro"] = "Sua conta não está vinculada a um cadastro de cooperado.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (registro.CooperadoId != meuCooperadoId)
             {
                 TempData["MensagemErro"] = "Você só pode consultar o seu próprio registro de ponto.";
                 return RedirectToAction(nameof(Index));

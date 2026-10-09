@@ -1,5 +1,6 @@
 using Cooperativa.Data;
 using Cooperativa.Models;
+using Cooperativa.Web.Filters;
 using Cooperativa.Web.Services;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
@@ -35,6 +36,9 @@ var mvcBuilder = builder.Services.AddControllersWithViews(options =>
     // Somente usuários logados podem acessar o sistema.
     // As actions de autenticação (login, MFA e redefinição de senha) devem declarar [AllowAnonymous].
     options.Filters.Add(new AuthorizeFilter());
+    // Depois do AuthorizeFilter: o perfil Cooperado (sem papel administrativo) só acessa o
+    // próprio cadastro, o próprio ponto, a página principal e suas ações de conta.
+    options.Filters.Add(new RestricaoAcessoCooperadoAttribute());
 });
 
 if (builder.Environment.IsDevelopment())
