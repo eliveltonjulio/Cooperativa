@@ -752,6 +752,44 @@ using (var scope = app.Services.CreateScope())
             );
             """);
 
+        // Ponto: garante no banco a regra "um registro por cooperado por dia".
+        // Bloco separado do anterior para que uma falha aqui não reverta as demais correções de schema.
+        // Em banco legado a migration seria apenas registrada como baseline (ver AplicarMigracoes),
+        // por isso a garantia vive aqui — mesma abordagem usada para Funções e Remunerações.
+        dbContext.Database.ExecuteSqlRaw("""
+            DO $$
+            BEGIN
+                IF to_regclass('"RegistrosPonto"') IS NOT NULL THEN
+                    -- Resolve duplicatas já existentes mantendo o registro mais recente de cada dia
+                    -- (última transação que criou/atualizou a linha; empate pela posição física).
+                    DELETE FROM "RegistrosPonto" p
+                    WHERE EXISTS (
+                        SELECT 1
+                        FROM "RegistrosPonto" p2
+                        WHERE p2."CooperadoId" = p."CooperadoId"
+                          AND timezone('UTC', p2."Data")::date = timezone('UTC', p."Data")::date
+                          AND (p2.xmin::text::bigint > p.xmin::text::bigint
+                               OR (p2.xmin::text::bigint = p.xmin::text::bigint AND p2.ctid > p.ctid)));
+
+                    -- Reconhece o índice apenas se ele não existir ou existir como índice não-úntigo.
+                    IF EXISTS (
+                        SELECT 1 FROM pg_indexes
+                        WHERE schemaname = current_schema()
+                          AND indexname = 'IX_RegistrosPonto_CooperadoId_DiaUtc'
+                          AND indexdef NOT LIKE 'UNIQUE%')
+                    THEN
+                        DROP INDEX "IX_RegistrosPonto_CooperadoId_DiaUtc";
+                    END IF;
+
+                    -- Índice único por dia (UTC) do cooperado: a aplicação normaliza Data para
+                    -- meia-noite UTC; agrupar por dia de calendário em UTC torna a regra independente
+                    -- do fuso da sessão e de horários legados gravados na coluna.
+                    CREATE UNIQUE INDEX IF NOT EXISTS "IX_RegistrosPonto_CooperadoId_DiaUtc"
+                        ON "RegistrosPonto" ("CooperadoId", (timezone('UTC', "Data")::date));
+                END IF;
+            END $$;
+            """);
+
         // Seed admin padrão: usa a senha de "AdminInicial:Senha" (user-secrets/App Settings);
         // se ausente, gera uma senha forte única e a registra no log apenas nesta inicialização.
         var senhaAdminConfigurada = builder.Configuration["AdminInicial:Senha"];

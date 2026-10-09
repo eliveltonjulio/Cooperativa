@@ -3,6 +3,7 @@ using Cooperativa.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using System.Globalization;
 using System.Text.Json;
 
@@ -11,6 +12,8 @@ namespace Cooperativa.Web.Controllers
     [Authorize]
     public class PontoController : Controller
     {
+    private const string MensagemPontoDuplicado = "Já existe um registro de ponto para este cooperado nesta data.";
+
     private readonly CooperativaDbContext _context;
 
     public PontoController(CooperativaDbContext context)
@@ -122,6 +125,18 @@ namespace Cooperativa.Web.Controllers
 
         // Normaliza a data para UTC para consistência com o resto da aplicação
         var dataPonto = new DateTime(data.Year, data.Month, data.Day, 0, 0, 0, DateTimeKind.Utc);
+
+        var pontoJaRegistrado = await _context.RegistrosPonto.AnyAsync(r =>
+            r.CooperadoId == cooperadoId
+            && r.Data >= dataPonto
+            && r.Data < dataPonto.AddDays(1));
+
+        if (pontoJaRegistrado)
+        {
+            TempData["MensagemErro"] = MensagemPontoDuplicado;
+            return RedirectToAction("Details", "Cooperados", new { id = cooperadoId });
+        }
+
         var cooperadoAlocado = await _context.Alocacoes
             .AnyAsync(a => a.CooperadoId == cooperadoId
                 && a.DataInicio.Date <= dataPonto
@@ -146,8 +161,18 @@ namespace Cooperativa.Web.Controllers
             Observacao = string.Empty
         };
 
-        _context.RegistrosPonto.Add(registro);
-        await _context.SaveChangesAsync();
+        try
+        {
+            _context.RegistrosPonto.Add(registro);
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex) when (EhViolacaoDeUnicidade(ex))
+        {
+            // Corrida entre requisições: o índice único do banco impede a duplicata
+            // mesmo que a validação da aplicação tenha passado.
+            TempData["MensagemErro"] = MensagemPontoDuplicado;
+            return RedirectToAction("Details", "Cooperados", new { id = cooperadoId });
+        }
 
         TempData["MensagemSucesso"] = "Ponto registrado com sucesso.";
         return RedirectToAction("Details", "Cooperados", new { id = cooperadoId });
@@ -213,8 +238,22 @@ namespace Cooperativa.Web.Controllers
         // Normaliza a ocorrência para o código canônico do catálogo (nulo quando vazia/inválida).
         model.Ocorrencia = OcorrenciasPonto.ObterPorCodigo(model.Ocorrencia)?.Codigo;
         NormalizarDatas(model);
-        _context.RegistrosPonto.Add(model);
-        await _context.SaveChangesAsync();
+        try
+        {
+            _context.RegistrosPonto.Add(model);
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex) when (EhViolacaoDeUnicidade(ex))
+        {
+            // Corrida entre requisições: o índice único do banco impede a duplicata
+            // mesmo que a validação da aplicação tenha passado.
+            _context.Entry(model).State = EntityState.Detached;
+            ModelState.AddModelError(nameof(model.Data), MensagemPontoDuplicado);
+            ViewData["ContratoId"] = contratoId;
+            await CarregarContratosEAlocacoesAsync();
+            return View(model);
+        }
+
         TempData["MensagemSucesso"] = "Ponto registrado com sucesso.";
         return RedirectToAction(nameof(Index));
     }
@@ -250,7 +289,7 @@ namespace Cooperativa.Web.Controllers
         if (registro == null) return NotFound();
 
         ModelState.Remove(nameof(RegistroPonto.Cooperado));
-        await ValidarRegistroAsync(model, exigirCooperadoAtivo: false);
+        await ValidarRegistroAsync(model, exigirCooperadoAtivo: false, registroIdIgnorado: id);
 
         if (!ModelState.IsValid)
         {
@@ -268,7 +307,20 @@ namespace Cooperativa.Web.Controllers
         registro.Saida = model.Saida;
         registro.InicioIntervalo = model.InicioIntervalo;
         registro.FimIntervalo = model.FimIntervalo;
-        await _context.SaveChangesAsync();
+
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex) when (EhViolacaoDeUnicidade(ex))
+        {
+            // Corrida entre requisições: o índice único do banco impede a duplicata
+            // mesmo que a validação da aplicação tenha passado.
+            ModelState.AddModelError(nameof(model.Data), MensagemPontoDuplicado);
+            await PopularCombosAsync(incluirInativos: true);
+            return View(model);
+        }
+
         TempData["MensagemSucesso"] = "Registro de ponto atualizado com sucesso.";
         return RedirectToAction(nameof(Index));
     }
@@ -350,7 +402,7 @@ namespace Cooperativa.Web.Controllers
         ViewBag.AlocacoesJson = JsonSerializer.Serialize(dados);
     }
 
-    private async Task ValidarRegistroAsync(RegistroPonto model, Guid? contratoId = null, bool exigirCooperadoAtivo = true)
+    private async Task ValidarRegistroAsync(RegistroPonto model, Guid? contratoId = null, bool exigirCooperadoAtivo = true, Guid? registroIdIgnorado = null)
     {
         if (contratoId.HasValue && contratoId.Value == Guid.Empty)
         {
@@ -410,7 +462,30 @@ namespace Cooperativa.Web.Controllers
             }
         }
 
+        // Um cooperado só pode ter um registro de ponto por data (inclui a edição: o próprio
+        // registro é ignorado pela busca, permitindo manter a data já utilizada por ele).
+        if (model.CooperadoId != Guid.Empty && model.Data != default)
+        {
+            // A coluna é "timestamp with time zone": a comparação é feita por intervalo de dias.
+            var diaDoPonto = new DateTime(model.Data.Year, model.Data.Month, model.Data.Day, 0, 0, 0, DateTimeKind.Utc);
+
+            var jaPossuiRegistro = await _context.RegistrosPonto.AnyAsync(r =>
+                r.CooperadoId == model.CooperadoId
+                && r.Data >= diaDoPonto
+                && r.Data < diaDoPonto.AddDays(1)
+                && (registroIdIgnorado == null || r.Id != registroIdIgnorado));
+
+            if (jaPossuiRegistro)
+            {
+                ModelState.AddModelError(nameof(model.Data), MensagemPontoDuplicado);
+            }
+        }
     }
+
+    // Violação do índice único do banco (SQLSTATE 23505): a regra de unicidade é garantida
+    // pelo PostgreSQL mesmo em corrida entre requisições; converte em mensagem amigável.
+    private static bool EhViolacaoDeUnicidade(DbUpdateException ex) =>
+        ex.InnerException is PostgresException postgres && postgres.SqlState == PostgresErrorCodes.UniqueViolation;
 
     private static void NormalizarDatas(RegistroPonto registro)
     {
